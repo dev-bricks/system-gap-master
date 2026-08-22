@@ -1,12 +1,13 @@
 # system-gap-master
 
-## Last-checked: 2026-08-22
+## Last-checked: 2026-08-26
 
 ## Verification
 
-176 tests passed, 42 subtests passed, and 1 Windows symlink-platform test was
-skipped because the current account lacks the required symlink privilege;
-Ruff, pytest, unittest, and `compileall` passed cleanly on 2026-08-22.
+202 tests passed, 42 subtests passed, and 3 platform tests were skipped: the
+Windows symlink test lacks the required account privilege, and two POSIX mode
+tests do not apply on Windows;
+Ruff, pytest, unittest, and `compileall` passed cleanly on 2026-08-26.
 
 ## Canonical repository
 
@@ -50,9 +51,14 @@ separate state silos.
   transport; it owns no ticket queue, fan-out, lifecycle or completion state.
 - `docs/ticket-route-intent-adapter.md` and `_de.md` — cross-repository pin,
   retry/idempotency contract and responsibility boundary.
+- `system_gap_master/instance_manager.py` — manifest-driven read-only doctor,
+  top-level inventory and non-mutating retention plan plus hash-bound
+  plan/upgrade/rollback for declared template paths only.
+- `docs/instance-manager.md` — repository-to-yard ownership, migration,
+  idempotency, backup and rollback contract.
 - `schemas/trusted-peer-*.schema.json` — machine-readable registry,
   host-local policy and no-transfer receipt contracts.
-- `template/` — copy-ready yard skeleton.
+- `system_gap_master/yard_template/` — packaged, copy-ready yard skeleton.
 - `examples/config-state.providers.example.json` — neutral provider-table
   example for the configuration-state showroom.
 - `docs/adapting-your-agents.md` — integration notes for agent rule files and

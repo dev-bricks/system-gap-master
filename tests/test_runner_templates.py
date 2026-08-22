@@ -11,7 +11,8 @@ class TestRunnerTemplates(unittest.TestCase):
         template = json.loads(
             (
                 REPOSITORY
-                / "template"
+                / "system_gap_master"
+                / "yard_template"
                 / "runners"
                 / "desktop-agent"
                 / "conflict-copy-reconciler.task.json"
@@ -39,7 +40,8 @@ class TestRunnerTemplates(unittest.TestCase):
     def test_macos_launchagent_is_user_neutral_and_observer_first(self):
         plist_path = (
             REPOSITORY
-            / "template"
+            / "system_gap_master"
+            / "yard_template"
             / "runners"
             / "macos"
             / "org.example.system-gap-master.conflict-copy-reconciler.plist"
@@ -55,7 +57,8 @@ class TestRunnerTemplates(unittest.TestCase):
     def test_macos_runner_keeps_observer_read_only(self):
         runner = (
             REPOSITORY
-            / "template"
+            / "system_gap_master"
+            / "yard_template"
             / "runners"
             / "macos"
             / "run-conflict-copy-reconciler.sh"

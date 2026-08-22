@@ -141,7 +141,7 @@ separate.
 
 For conflict-copy maintenance, all desktop-agent apps may have the
 provider-neutral task from
-`template/runners/desktop-agent/conflict-copy-reconciler.task.json`, but only
+`system_gap_master/yard_template/runners/desktop-agent/conflict-copy-reconciler.task.json`, but only
 one app is the mutating owner for a given host/root. The others are observers
 that inspect redacted receipts and may request a policy-governed takeover.
 Observers run the plan command only; the engine rejects mutation when their
