@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- **Security:** Provider tables for configuration snapshots must now be
+  host-local and outside the shared state directory. Lexical and resolved
+  paths into the yard fail closed, preventing a yard participant from changing
+  the allowlist to select host-local configuration values for shared output.
+
 ## [1.5.0] - 2026-08-22
 
 - Added a narrow `ticket-master>=1.11,<1.12` route-intent adapter. The
