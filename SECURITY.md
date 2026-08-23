@@ -36,6 +36,15 @@ Security disclosures are handled promptly, with coordinated fixes published foll
 - **Non-Elevation:** All scripts and CLI utilities operate entirely within unprivileged user space. No administrator or root elevation is required or requested.
 - **Fail-Closed Boundaries:** Path validations (protection against symlink, junction, and directory traversal attacks) and authorization checks fail closed by default.
 
+## Configuration snapshot boundary
+
+- The provider table is authorization policy and must remain host-local,
+  private, and outside the shared yard.
+- `config_snapshot.py` rejects provider tables stored inside, or redirected
+  into, the configured shared state directory.
+- Only allowlisted scalar values may enter generated shared snapshots; the
+  provider table itself, credentials, and live databases must never be synced.
+
 ## Conflict-copy reconciler boundary
 
 - Host configs, receipt salts, roots, plans, operation manifests and backups

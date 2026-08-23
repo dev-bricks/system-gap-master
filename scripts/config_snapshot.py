@@ -3,8 +3,8 @@
 """Create allowlisted, comparable configuration snapshots.
 
 The provider table is deliberately data-driven.  The public repository does
-not know where a user's agent configuration lives; each yard supplies a small
-JSON table with paths and keys that are safe to compare.  Values outside that
+not know where a user's agent configuration lives; each host supplies a small,
+private JSON table with paths and keys that are safe to compare.  Values outside that
 allowlist are never read into the snapshot, and home-directory paths are
 normalised to ``<HOME>`` so Windows and macOS snapshots can be compared.
 
@@ -49,6 +49,7 @@ CONFIG_ENV = "SYSTEM_GAP_CONFIG_STATE_CONFIG"
 SLOT_ENV = "SYSTEM_GAP_CONFIG_STATE_SLOT"
 DEFAULT_STATE_DIR_NAME = "_config-state"
 DEFAULT_PROVIDER_CONFIG_NAME = "providers.json"
+DEFAULT_PROVIDER_CONFIG_DIR = ".config/system-gap-master"
 
 SECRET_RE = re.compile(
     r"(?:TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|API[-_]?KEY|[-_]KEY$|^KEY$|AUTH(?!OR)|[-_]PAT$|^PAT$)",
@@ -70,6 +71,30 @@ def resolve_home(home: str | os.PathLike[str] | None = None) -> Path:
     """Resolve the comparison home without requiring it to exist."""
 
     return _as_path(home or os.path.expanduser("~"))
+
+
+def _path_is_within(path: Path, root: Path) -> bool:
+    """Return whether *path* is inside *root*, including Windows case folding."""
+
+    try:
+        common = os.path.commonpath((os.path.normcase(str(path)), os.path.normcase(str(root))))
+    except ValueError:
+        return False
+    return common == os.path.normcase(str(root))
+
+
+def _require_host_local_provider_config(candidate: Path, state: Path) -> None:
+    """Reject provider policy stored in, or redirected into, shared state."""
+
+    lexical_candidate = _as_path(candidate)
+    lexical_state = _as_path(state)
+    resolved_candidate = lexical_candidate.resolve(strict=False)
+    resolved_state = lexical_state.resolve(strict=False)
+    if _path_is_within(lexical_candidate, lexical_state) or _path_is_within(resolved_candidate, resolved_state):
+        raise ConfigSnapshotError(
+            "provider table must be host-local and outside the shared state directory: "
+            f"{lexical_candidate}"
+        )
 
 
 def norm(value: Any, home: str | os.PathLike[str] | None = None) -> Any:
@@ -270,14 +295,19 @@ def _provider_entries(config: Mapping[str, Any]) -> list[tuple[str, Mapping[str,
 
 
 def load_provider_config(path: Path | None = None, state_dir: Path | None = None) -> tuple[dict[str, Any], Path | None]:
-    """Load the provider table without inventing provider-specific defaults."""
+    """Load a host-local provider table outside the shared state directory."""
 
     state = state_dir or resolve_state_dir()
     candidate = path
     if candidate is None:
         raw = os.environ.get(CONFIG_ENV)
-        candidate = Path(raw) if raw else state / DEFAULT_PROVIDER_CONFIG_NAME
+        candidate = (
+            Path(raw)
+            if raw
+            else resolve_home() / DEFAULT_PROVIDER_CONFIG_DIR / DEFAULT_PROVIDER_CONFIG_NAME
+        )
     candidate = _as_path(candidate)
+    _require_host_local_provider_config(candidate, state)
     if not candidate.is_file():
         return {"_schema": PROVIDER_CONFIG_SCHEMA, "providers": {}}, candidate
     try:
@@ -565,7 +595,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Allowlisted, home-normalised configuration state snapshots.")
     parser.add_argument("mode", choices=("snapshot", "report", "all"), nargs="?", default="all")
     parser.add_argument("--state-dir", default=None, help=f"State directory (or {STATE_ENV})")
-    parser.add_argument("--config", default=None, help=f"Provider table JSON (or {CONFIG_ENV})")
+    parser.add_argument(
+        "--config",
+        default=None,
+        help=f"Host-local provider table JSON outside --state-dir (or {CONFIG_ENV})",
+    )
     parser.add_argument("--slot", default=None, help=f"Machine slot (or {SLOT_ENV})")
     parser.add_argument("--home", default=None, help="Comparison home; intended for tests and controlled wrappers")
     parser.add_argument("--check", action="store_true", help="Preview writes without changing files")

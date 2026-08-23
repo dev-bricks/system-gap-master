@@ -193,8 +193,9 @@ python scripts/system_gap_daily_check.py mark
 Das optionale Konfigurations-Schaufenster macht Maschinen-Drift sichtbar,
 ohne Anbieter-Secrets in den Transferbereich zu kopieren. Kopiere
 [`examples/config-state.providers.example.json`](examples/config-state.providers.example.json)
-nach `_config-state/providers.json`, ersetze die Platzhalterpfade und -keys
-durch eine ausdrückliche Allowlist und pflege die Begründungen in
+an einen privaten, hostlokalen Pfad außerhalb jedes synchronisierten
+Transferbereichs, ersetze die Platzhalterpfade und -keys durch eine
+ausdrückliche Allowlist und pflege die Begründungen in
 [`template/_config-state/DEVIATIONS.md`](template/_config-state/DEVIATIONS.md).
 Das Skript liest nur konfigurierte JSON-/TOML-Dateien und Keys, normalisiert
 Pfade unter `<HOME>` und redigiert oder verkürzt Werte, die nicht verglichen
@@ -203,9 +204,13 @@ werden sollen.
 ```bash
 python scripts/config_snapshot.py all \
   --state-dir /path/to/SYNC/_config-state \
-  --config /path/to/SYNC/_config-state/providers.json \
+  --config /path/to/private/system-gap-master/providers.json \
   --slot YOUR-HOST
 ```
+
+Die Provider-Tabelle ist eine Berechtigungsrichtlinie: Das Skript lehnt eine
+Tabelle innerhalb von `--state-dir` sowie Umleitungen dorthin ab. Diese
+hostlokale Datei darf niemals synchronisiert werden.
 
 Mit `--check` bleibt der Lauf schreibgeschützt. `snapshots/` und
 `CONFIG-STATE.md` sind abgeleitete Ausgaben; begründe absichtliche

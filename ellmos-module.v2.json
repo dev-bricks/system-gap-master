@@ -23,7 +23,7 @@
   "conflicts": [],
   "surfaces": [
     "cli",
-    "api",
+    "library",
     "workflow"
   ],
   "state": {
@@ -31,8 +31,8 @@
     "location": "project"
   },
   "boundaries": {
-    "network": "none-by-default; optional signed one-shot sftp",
-    "data": "path-metadata by default; one approved regular file through executor",
+    "network": "optional",
+    "data": "user-local",
     "platforms": [
       "windows",
       "macos",
@@ -46,6 +46,7 @@
   },
   "adapters": [
     {
+      "type": "seam",
       "id": "sftp-preparation",
       "role": "trusted-peer-no-transfer-plan",
       "networks": [
@@ -54,6 +55,7 @@
       ]
     },
     {
+      "type": "seam",
       "id": "sftp-executor",
       "role": "signed-one-shot-no-overwrite-single-file-pull",
       "networks": [
@@ -63,11 +65,13 @@
       "optional_dependency": "paramiko"
     },
     {
+      "type": "seam",
       "id": "ticket-route-intent",
       "role": "validated-ticket-master-intent-to-existing-transport",
       "optional_dependency": "ticket-master>=1.11,<1.12"
     },
     {
+      "type": "seam",
       "id": "sqlite-transit-sync",
       "role": "database-snapshot-transit",
       "required_for": [

@@ -207,8 +207,8 @@ python scripts/system_gap_daily_check.py mark
 The optional configuration-state pattern makes machine drift visible without
 copying provider secrets into the yard. Copy
 [`examples/config-state.providers.example.json`](examples/config-state.providers.example.json)
-to `_config-state/providers.json`, replace its placeholder paths and keys with
-an explicit allowlist, and keep the rationale in
+to a host-local private path outside every synced yard, replace its placeholder
+paths and keys with an explicit allowlist, and keep the rationale in
 [`template/_config-state/DEVIATIONS.md`](template/_config-state/DEVIATIONS.md).
 The script reads only configured JSON/TOML files and keys, normalises paths
 under `<HOME>`, and collapses or redacts values that should not be compared.
@@ -216,9 +216,12 @@ under `<HOME>`, and collapses or redacts values that should not be compared.
 ```bash
 python scripts/config_snapshot.py all \
   --state-dir /path/to/SYNC/_config-state \
-  --config /path/to/SYNC/_config-state/providers.json \
+  --config /path/to/private/system-gap-master/providers.json \
   --slot YOUR-HOST
 ```
+
+The provider table is authorization policy: the script rejects a table stored
+inside (or redirected into) `--state-dir`. Never sync this host-local file.
 
 Use `--check` for a read-only preview. `snapshots/` and `CONFIG-STATE.md` are
 derived output; document intentional differences with headings such as

@@ -144,6 +144,24 @@ class TestConfigSnapshot(unittest.TestCase):
         snapshot = config_snapshot.build_snapshot({}, home=self.home, slot="empty")
         self.assertEqual(snapshot["providers"], {})
 
+    def test_provider_table_inside_shared_state_is_rejected(self):
+        self.state.mkdir(parents=True)
+        config_path = self.state / "providers.json"
+        config_path.write_text(json.dumps(self.config), encoding="utf-8")
+
+        with self.assertRaisesRegex(config_snapshot.ConfigSnapshotError, "must be host-local"):
+            config_snapshot.load_provider_config(config_path, self.state)
+
+    def test_provider_table_outside_shared_state_is_allowed(self):
+        config_path = self.temp_dir / "private" / "providers.json"
+        config_path.parent.mkdir()
+        config_path.write_text(json.dumps(self.config), encoding="utf-8")
+
+        loaded, resolved = config_snapshot.load_provider_config(config_path, self.state)
+
+        self.assertEqual(loaded, self.config)
+        self.assertEqual(resolved, config_path)
+
     def test_report_does_not_need_to_parse_provider_table(self):
         self.state.mkdir(parents=True)
         (self.state / "providers.json").write_text("{broken", encoding="utf-8")
