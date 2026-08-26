@@ -918,7 +918,11 @@ def rollback_operation(
             matches_before = current_sha == record.get(
                 "before_sha256"
             ) and _mode_matches_expected(current_mode, record.get("before_mode"))
-            if not matches_after and not matches_before:
+            resumes_interrupted_restore = (
+                record.get("rollback_status") == "restoring"
+                and current_sha == record.get("before_sha256")
+            )
+            if not matches_after and not matches_before and not resumes_interrupted_restore:
                 raise InstanceManagerError(f"rollback target changed after upgrade: {relative}")
             backup = operation_dir / "backups" / Path(*PurePosixPath(relative).parts)
             if not backup.is_file() or _sha256_file(backup) != record.get("before_sha256"):
@@ -989,8 +993,16 @@ def rollback_operation(
                 current_mode, record.get("before_mode")
             )
             if matches_after:
+                record["rollback_status"] = "restoring"
+                operation = _write_operation(operation_path, operation)
                 _atomic_write(target, backup.read_bytes())
-            elif not matches_before:
+            elif (
+                not matches_before
+                and not (
+                    record.get("rollback_status") == "restoring"
+                    and current_sha == record["before_sha256"]
+                )
+            ):
                 raise InstanceManagerError(f"rollback target changed during retry: {relative}")
             _apply_file_mode(target, record.get("before_mode"))
             if _sha256_file(target) != record["before_sha256"]:

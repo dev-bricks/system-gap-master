@@ -22,7 +22,6 @@ class InstalledWheelTemplateTests(unittest.TestCase):
                     "--disable-pip-version-check",
                     "wheel",
                     "--no-deps",
-                    "--no-build-isolation",
                     "--wheel-dir",
                     str(wheels),
                     str(repository),
