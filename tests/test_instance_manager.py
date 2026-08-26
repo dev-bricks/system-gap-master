@@ -262,7 +262,11 @@ class LifecycleTests(InstanceManagerFixture):
         def fail_after_restore(path, data):
             nonlocal failed_once
             original(path, data)
-            if path == self.yard / "README.md" and not failed_once:
+            if (
+                path.resolve(strict=False)
+                == (self.yard / "README.md").resolve(strict=False)
+                and not failed_once
+            ):
                 failed_once = True
                 raise OSError("simulated power loss after restore")
 
