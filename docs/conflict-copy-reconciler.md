@@ -146,7 +146,7 @@ that private local manifest into a shared yard.
 ## Desktop-agent automation contract
 
 Use the task template in
-`template/runners/desktop-agent/conflict-copy-reconciler.task.json`.
+`system_gap_master/yard_template/runners/desktop-agent/conflict-copy-reconciler.task.json`.
 
 - Title: `<APP_DISPLAY_NAME> — Conflict Copy Reconciler`.
 - Every installed desktop-agent app may have an observer task.
@@ -163,7 +163,7 @@ Use the task template in
 
 ## macOS runner
 
-`template/runners/macos/` contains a user-neutral shell runner and LaunchAgent
+`system_gap_master/yard_template/runners/macos/` contains a user-neutral shell runner and LaunchAgent
 template. Replace placeholders during host setup; keep the actual root,
 state directory, schedule and log locations in host-local configuration.
 The runner has no embedded username or volume and calls the same engine used

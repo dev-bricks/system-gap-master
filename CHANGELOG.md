@@ -6,6 +6,23 @@
   host-local and outside the shared state directory. Lexical and resolved
   paths into the yard fail closed, preventing a yard participant from changing
   the allowlist to select host-local configuration values for shared output.
+- Added the manifest-driven `yard-instance-manager` lifecycle boundary between
+  a local repository clone and a live shared yard: read-only `doctor`,
+  `inventory`, `retention-plan` and `plan`, plus hash-bound `upgrade` and
+  fail-closed `rollback` for declared template paths only.
+- Packaged `system_gap_master/yard_template/YARD_TEMPLATE.json` with explicit
+  repo/instance/tool ownership and `managed` versus `seed-once` file modes.
+  Host slots, messages, archives, private content and `db-transit` payloads
+  remain outside automatic mutation.
+- Added an integrity-protected host-local write-ahead operation journal,
+  resumable rollback, exact no-op applies, foreign late-state preservation,
+  protected-zone exceptions,
+  POSIX mode restoration and Windows reparse/junction guards.
+- Added fresh-instance, idempotency, modified-target, plan-tamper,
+  failure-injection, installed-wheel, update, backup and rollback tests plus
+  bilingual lifecycle documentation.
+- Documented `_transit` as a manual writer/reader migration gate to the existing
+  R9 `db-transit/<namespace>` route rather than introducing a second transport.
 
 ## [1.5.0] - 2026-08-22
 

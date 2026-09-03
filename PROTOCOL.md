@@ -1,7 +1,7 @@
 # The system-gap-master Protocol
 
 The full specification of the protocol. The copy-ready starter files live in
-`template/`; this document explains the rules and the reasoning behind them.
+`system_gap_master/yard_template/`; this document explains the rules and the reasoning behind them.
 
 ## The problem
 
@@ -33,7 +33,7 @@ without a server and without merge conflicts:
 
 ```
 <SYNC_DIR>/
-  SYNC_PROTOCOL.md         local copy of the protocol summary (from template/)
+  SYNC_PROTOCOL.md         local copy of the protocol summary (from the packaged yard template)
   BOOTSTRAP.md             runbook: bring up a NEW machine from this folder
   DAILY_SYNC_LOG.md        gate: one sync per day per host
   CONFLICT_REVIEW_LOG.md   gate: daily check for sync-provider conflict copies
@@ -181,6 +181,36 @@ The preparation contract and threat model are in
 
 Extend the table in your local `SYNC_PROTOCOL.md` as your yard grows — the
 convention that a convention EXISTS is the load-bearing part.
+
+## Controlled instance lifecycle extension
+
+The repository and a live yard have different owners. The repository is the
+source for generic schemas, templates and validators; the yard owns host
+slots, actor state, messages, archives and tool-managed transit payloads. A
+yard therefore remains a plain instance, not a Git checkout.
+
+`yard-instance-manager` makes that boundary executable through
+`system_gap_master/yard_template/YARD_TEMPLATE.json`:
+
+- `doctor`, `inventory`, `retention-plan` and `plan` are read-only;
+- only declared template files and required directories may enter a mutating
+  plan;
+- `managed` files update only from a previously recorded exact hash;
+- `seed-once` files are preserved after first creation;
+- every plan, source and target is rebound before apply;
+- backups and a write-ahead operation journal stay host-local outside the yard;
+- rollback stops before mutation if any target, backup or state binding
+  changed, then journals each restored record so an interrupted rollback can
+  resume safely;
+- protected or non-repository-owned zones require exact managed-file
+  exceptions; directory globs never grant blanket mutation authority.
+
+The manager never migrates `_transit` automatically. That legacy path first
+needs a writer/reader audit; structured payloads then use the existing R9
+`db-transit/<namespace>` boundary. It also never archives retention candidates
+automatically: old age is evidence for review, not authority to delete.
+
+Full contract: [`docs/instance-manager.md`](docs/instance-manager.md).
 
 ## Why this works (design notes)
 

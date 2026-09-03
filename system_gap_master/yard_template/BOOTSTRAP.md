@@ -38,7 +38,8 @@
       state/backups outside the synced yard, run `canary`, and register all
       desktop-agent tasks as observers first.
 - [ ] Assign at most one `mutating-owner` per root. On macOS, instantiate and
-      lint the runner/LaunchAgent templates under `template/runners/macos/`.
+      lint the runner/LaunchAgent templates under
+      `system_gap_master/yard_template/runners/macos/`.
 - [ ] Generate one persistent high-entropy `receipt_salt`, protect the
       host-local config/state directory, and make every adapter for the same
       root use that same state directory. Start every adapter as `observer`.
