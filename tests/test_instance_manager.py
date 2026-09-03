@@ -189,6 +189,44 @@ class LifecycleTests(InstanceManagerFixture):
             rollback_operation(applied["operation_id"], self.yard, self.state)
         self.assertEqual((self.yard / "README.md").read_text(encoding="utf-8"), "late writer\n")
 
+    def test_tampered_operation_manifest_fails_closed_on_rollback(self):
+        applied = self._bootstrap()
+        operation_path = self.state / "operations" / applied["operation_id"] / "operation.json"
+        operation = json.loads(operation_path.read_text(encoding="utf-8"))
+        # Add a field without recomputing integrity_sha256 -- the same shape
+        # as a manipulated or corrupted manifest. Deliberately not one of the
+        # fields checked separately (schema/operation_id/status/yard_root),
+        # so only the digest check itself can catch this.
+        operation["tampered"] = True
+        operation_path.write_text(json.dumps(operation), encoding="utf-8")
+        with self.assertRaisesRegex(InstanceManagerError, "integrity check failed"):
+            rollback_operation(applied["operation_id"], self.yard, self.state)
+
+    def test_missing_backup_blocks_rollback(self):
+        self._bootstrap()
+        (self.template / "README.md").write_text("template v2\n", encoding="utf-8")
+        second = apply_plan(self._save_plan(build_plan(self.yard, self.template)), self.state)
+        backup = self.state / "operations" / second["operation_id"] / "backups" / "README.md"
+        self.assertTrue(backup.is_file())
+        backup.unlink()
+        with self.assertRaisesRegex(InstanceManagerError, "backup is missing or changed"):
+            rollback_operation(second["operation_id"], self.yard, self.state)
+        self.assertEqual((self.yard / "README.md").read_text(encoding="utf-8"), "template v2\n")
+
+    def test_link_boundary_appearing_after_planning_blocks_apply(self):
+        plan_path = self._save_plan()
+        external = self.root / "external-hosts"
+        external.mkdir()
+        junction = self.yard / "hosts"
+        subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(junction), str(external)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        with self.assertRaisesRegex(InstanceManagerError, "link boundary appeared after planning"):
+            apply_plan(plan_path, self.state)
+
     def test_state_dir_inside_yard_is_forbidden(self):
         with self.assertRaises(InstanceManagerError):
             apply_plan(self._save_plan(), self.yard / "state")
@@ -419,6 +457,42 @@ class ReadOnlyAnalysisTests(InstanceManagerFixture):
         self.assertEqual(code, 0)
         self.assertEqual(stderr.getvalue(), "")
         self.assertEqual(json.loads(stdout.getvalue())["schema"], "system-gap.yard-doctor.v1")
+
+    def test_cli_plan_output_inside_yard_is_rejected(self):
+        target = self.yard / "plan.json"
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+            code = main(
+                [
+                    "plan",
+                    "--yard-root",
+                    str(self.yard),
+                    "--template-root",
+                    str(self.template),
+                    "--output",
+                    str(target),
+                ]
+            )
+        self.assertEqual(code, 2)
+        self.assertFalse(target.exists())
+        self.assertIn("must stay outside yard_root", json.loads(stderr.getvalue())["error"])
+
+    def test_cli_plan_output_outside_yard_still_works(self):
+        target = self.root / "review" / "plan.json"
+        code = main(
+            [
+                "plan",
+                "--yard-root",
+                str(self.yard),
+                "--template-root",
+                str(self.template),
+                "--output",
+                str(target),
+            ]
+        )
+        self.assertEqual(code, 0)
+        self.assertTrue(target.is_file())
 
 
 class RepositoryTemplateSmokeTests(unittest.TestCase):

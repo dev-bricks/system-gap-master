@@ -23,6 +23,17 @@
   bilingual lifecycle documentation.
 - Documented `_transit` as a manual writer/reader migration gate to the existing
   R9 `db-transit/<namespace>` route rather than introducing a second transport.
+- **Security:** `plan --output` no longer accepts a path inside `yard_root` or
+  `template_root`. It fails closed with the same `_overlaps` boundary check
+  already used for `state_dir`, closing a live-yard write path through a
+  command documented as read-only in PROTOCOL.md, llms.txt, this CHANGELOG
+  and docs/instance-manager.md.
+- Documented the cross-host POSIX mode-drift blocker
+  (`untracked-or-modified-managed-mode`) and how an operator resolves it,
+  instead of relaxing the fail-closed check to a warning.
+- Added fail-closed regression tests for a tampered operation manifest, a
+  missing or altered rollback backup, and a link boundary appearing on a
+  declared template path between planning and apply.
 
 ## [1.5.0] - 2026-08-22
 

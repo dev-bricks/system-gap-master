@@ -89,6 +89,34 @@ portable between Windows, macOS and Linux. Its exact pre-plan hash is rebound
 before apply. Mutating runs still require one externally coordinated rollout
 owner for the yard; the file-sync provider is not a distributed lock service.
 
+### Cross-host POSIX mode drift
+
+`plan` reads the actual POSIX mode of every managed file (`os.stat`, skipped
+on Windows, where mode is not portable). If a file-sync provider re-lands an
+otherwise byte-identical managed file on a second POSIX host with a different
+mode than the template declares (for example `0644` instead of a declared
+`0755`), `plan` blocks with `untracked-or-modified-managed-mode` instead of
+silently accepting it. This is intentional, not a bug: content-only
+comparison cannot tell a benign sync artifact from a real permission
+regression (an executable helper losing its exec bit is exactly this
+shape), so the manager treats the two identically and fails closed.
+
+To resolve the blocker, restore the declared mode on the affected host and
+re-run `plan`:
+
+```bash
+chmod <declared-posix-mode> /path/to/shared/SYNC/<relative-path>
+yard-instance-manager plan --yard-root /path/to/shared/SYNC
+```
+
+The declared mode for each managed file is in the template manifest
+(`posix_mode`, e.g. `"0755"`); a blocked `doctor` run reports it directly as
+`source_mode` next to the drifted `target_mode` in the blocker entry.
+Do not resolve this by relaxing the check to a warning — mode drift is rare
+enough that a manual `chmod` is cheap, and downgrading a real permission
+change to a warning is exactly the kind of quiet erosion this fail-closed
+check exists to prevent.
+
 ## Rollback
 
 ```bash

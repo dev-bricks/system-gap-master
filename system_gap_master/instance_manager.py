@@ -1351,6 +1351,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             result = build_plan(args.yard_root, args.template_root)
             if args.output:
                 output = Path(args.output).expanduser().resolve(strict=False)
+                if _overlaps(output, _absolute_dir(args.yard_root, "yard_root")) or _overlaps(
+                    output, _absolute_dir(args.template_root, "template_root")
+                ):
+                    raise InstanceManagerError(
+                        "plan --output must stay outside yard_root and template_root"
+                    )
                 _write_json(output, result)
                 result = {
                     "schema": PLAN_SCHEMA,
