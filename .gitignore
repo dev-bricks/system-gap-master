@@ -1,6 +1,12 @@
 # Internal working notes (never released)
 _intern/
 LOCK*.txt
+LOCK.*
+*.lock
+*.sync-conflict-*
+*.conflict
+*-CONFLIT-*
+*-conflict-*
 trusted-peer-paths.local.json
 trusted-peer-paths.entries.local.json
 
@@ -11,6 +17,20 @@ __pycache__/
 build/
 dist/
 *.egg-info/
+
+# Test, linter & coverage caches
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.wheel-smoke/
+
+# Temporary and backup files
+*.tmp
+*.bak
+*.swp
+*~
+*.log
 
 # Local configuration and private data
 .env

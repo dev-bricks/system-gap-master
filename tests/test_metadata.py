@@ -49,9 +49,14 @@ class MetadataParityTests(unittest.TestCase):
         self.assertIn("Security Policy", content)
         self.assertIn("Geltungsbereich", content)
         self.assertIn("Scope", content)
+        self.assertIn("security@open-bricks.org", content)
         self.assertIn("security@ellmos.ai", content)
         self.assertIn("support@lukasgeiger.com", content)
         self.assertIn("github.com/ellmos-ai/system-gap-master/security/advisories", content)
+        self.assertIn("48 Stunden", content)
+        self.assertIn("48 hours", content)
+        self.assertIn("Unterstützte Versionen", content)
+        self.assertIn("Supported Versions", content)
         self.assertIn("Zero-Egress", content)
         self.assertIn("Non-Elevation", content)
 
@@ -83,7 +88,7 @@ class MetadataParityTests(unittest.TestCase):
             self.assertIn("3.13", text)
             self.assertIn("Zero--Egress", text)
             self.assertIn("Fail--Closed", text)
-            self.assertIn("202%20passed", text)
+            self.assertIn("203%20passed", text)
             self.assertIn("open--bricks", text)
             self.assertIn("MIT", text)
 
@@ -92,8 +97,8 @@ class MetadataParityTests(unittest.TestCase):
         self.assertTrue(llms_path.exists(), "llms.txt must exist")
         content = llms_path.read_text(encoding="utf-8")
         self.assertIn("system-gap-master", content)
-        self.assertIn("Last-checked: 2026-08-26", content)
-        self.assertIn("202 tests passed", content)
+        self.assertIn("Last-checked: 2026-09-08", content)
+        self.assertIn("203 tests passed", content)
         self.assertIn("https://github.com/ellmos-ai/system-gap-master", content)
 
     def test_ci_workflow_integrity(self):
@@ -104,7 +109,22 @@ class MetadataParityTests(unittest.TestCase):
         self.assertIn("windows-latest", ci_content)
         self.assertIn("macos-latest", ci_content)
         self.assertIn('"3.13"', ci_content)
+        self.assertIn("concurrency:", ci_content)
+        self.assertIn("cancel-in-progress: true", ci_content)
         self.assertIn("ruff check .", ci_content)
+        self.assertIn("compileall", ci_content)
+        self.assertIn("pytest -v", ci_content)
+
+    def test_gitignore_hygiene(self):
+        gitignore_path = self.root / ".gitignore"
+        self.assertTrue(gitignore_path.exists(), ".gitignore must exist")
+        gi_content = gitignore_path.read_text(encoding="utf-8")
+        self.assertIn("*.sync-conflict-*", gi_content)
+        self.assertIn("*-CONFLIT-*", gi_content)
+        self.assertIn("LOCK.*", gi_content)
+        self.assertIn("*.lock", gi_content)
+        self.assertIn(".pytest_cache/", gi_content)
+        self.assertIn(".ruff_cache/", gi_content)
 
     def test_pyproject_pep621_metadata(self):
         pyproject_path = self.root / "pyproject.toml"
@@ -122,10 +142,14 @@ class MetadataParityTests(unittest.TestCase):
         self.assertIn("Repository", urls)
         self.assertIn("Changelog", urls)
         self.assertIn("Bug Tracker", urls)
+        self.assertIn("Security", urls)
+        self.assertIn("Parent Organization", urls)
+        self.assertIn("Umbrella Ecosystem", urls)
         self.assertEqual(
             data["project"]["optional-dependencies"]["ticket-routing"],
             ["ticket-master>=1.11,<1.12"],
         )
+
 
     def test_ecosystem_sibling_tools_matrix(self):
         en_readme = self.root / "README.md"

@@ -60,6 +60,9 @@ Documentation = "https://github.com/ellmos-ai/system-gap-master/blob/main/PROTOC
 Repository = "https://github.com/ellmos-ai/system-gap-master"
 Changelog = "https://github.com/ellmos-ai/system-gap-master/blob/main/CHANGELOG.md"
 "Bug Tracker" = "https://github.com/ellmos-ai/system-gap-master/issues"
+Security = "https://github.com/ellmos-ai/system-gap-master/blob/main/SECURITY.md"
+"Parent Organization" = "https://github.com/ellmos-ai"
+"Umbrella Ecosystem" = "https://github.com/open-bricks"
 
 [tool.pytest.ini_options]
 minversion = "7.0"

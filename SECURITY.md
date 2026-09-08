@@ -5,10 +5,18 @@
 ### Sicherheitslücken melden
 
 Bitte keine öffentlichen Issues für Sicherheitslücken eröffnen. Verwenden Sie bevorzugt das [GitHub Security Advisory Reporting](https://github.com/ellmos-ai/system-gap-master/security/advisories). Alternativ erreichen Sie das Sicherheitsteam direkt per E-Mail:
+- **Dachorganisation / Umbrella:** `security@open-bricks.org`
 - **E-Mail:** `security@ellmos.ai`
 - **Fallback / Maintainer:** `support@lukasgeiger.com` | `lukas@open-bricks.org`
 
-Wir prüfen sicherheitsrelevante Hinweise zeitnah und stellen bei Bedarf koordinierte Patches bereit.
+**Reaktionszeiten (SLA):** Wir bestätigen den Eingang von Hinweisen innerhalb von 48 Stunden und streben eine Triage innerhalb von 5 Werktagen an. Wir prüfen sicherheitsrelevante Hinweise zeitnah und stellen bei Bedarf koordinierte Patches bereit.
+
+### Unterstützte Versionen
+
+| Version | Unterstützt |
+|---|---|
+| 1.6.x | :white_check_mark: |
+| < 1.6 | :x: |
 
 ### Geltungsbereich & Sicherheitsarchitektur
 
@@ -30,10 +38,18 @@ Wir prüfen sicherheitsrelevante Hinweise zeitnah und stellen bei Bedarf koordin
 ### Reporting a Vulnerability
 
 Please do not open public issues for security vulnerabilities. We strongly encourage reporting via [GitHub Security Advisories](https://github.com/ellmos-ai/system-gap-master/security/advisories). Alternatively, you can contact the security maintainers directly:
+- **Umbrella Organization:** `security@open-bricks.org`
 - **Email:** `security@ellmos.ai`
 - **Fallback / Maintainer:** `support@lukasgeiger.com` | `lukas@open-bricks.org`
 
-Security disclosures are handled promptly, with coordinated fixes published following responsible disclosure practices.
+**Response SLAs:** We acknowledge vulnerability reports within 48 hours and aim for initial triage within 5 business days. Coordinated security disclosures and patches are published following responsible disclosure practices.
+
+### Supported Versions
+
+| Version | Supported |
+|---|---|
+| 1.6.x | :white_check_mark: |
+| < 1.6 | :x: |
 
 ### Scope & Security Invariants
 

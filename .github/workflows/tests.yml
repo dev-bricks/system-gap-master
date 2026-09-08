@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main, master ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -34,6 +38,10 @@ jobs:
         run: |
           ruff check .
 
-      - name: Run unit tests
+      - name: Validate bytecode compilation
         run: |
-          python -m unittest discover -s tests -v
+          python -m compileall -q .
+
+      - name: Run tests with pytest
+        run: |
+          pytest -v
