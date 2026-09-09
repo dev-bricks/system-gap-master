@@ -218,12 +218,15 @@ class LifecycleTests(InstanceManagerFixture):
         external = self.root / "external-hosts"
         external.mkdir()
         junction = self.yard / "hosts"
-        subprocess.run(
-            ["cmd", "/c", "mklink", "/J", str(junction), str(external)],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
+        if os.name == "nt":
+            subprocess.run(
+                ["cmd", "/c", "mklink", "/J", str(junction), str(external)],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+        else:
+            junction.symlink_to(external, target_is_directory=True)
         with self.assertRaisesRegex(InstanceManagerError, "link boundary appeared after planning"):
             apply_plan(plan_path, self.state)
 

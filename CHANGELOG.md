@@ -1,7 +1,15 @@
 # Changelog
 
-## Unreleased
+## [1.6.0] - 2026-09-08
 
+### Added & Security Hardening (Pfad A Turnus-Hygiene)
+- **CI/CD Hardening:** Configured workflow concurrency with `cancel-in-progress: true` on `.github/workflows/tests.yml` to prevent redundant runs. Added bytecode compilation verification gate (`python -m compileall -q .`) and test execution with `pytest -v`.
+- **Packaging & Ecosystem Metadata:** Enriched `pyproject.toml` with PEP 621 URL definitions for Security policy, Parent Organization (`ellmos-ai`), and Umbrella Ecosystem (`open-bricks`).
+- **Gitignore Hardening:** Hardened `.gitignore` against multi-host sync conflict copies (`*.sync-conflict-*`, `*.conflict`, `*-CONFLIT-*`, `*-conflict-*`), multi-agent locks (`LOCK.*`, `*.lock`), linter/test caches (`.pytest_cache/`, `.ruff_cache/`, `.coverage`, `htmlcov/`), and temporary files.
+- **Security Policy Parity:** Synchronized `SECURITY.md` in German and English with umbrella organization reporting channel (`security@open-bricks.org`), 48-hour response SLA, 5-day triage commitment, and supported versions matrix (`1.6.x`).
+- **Contract Test Suite Expansion:** Extended `tests/test_metadata.py` with contract tests verifying CI concurrency, bytecode compilation gate, PEP 621 URLs, gitignore patterns, security policy SLA, and `llms.txt` synchronization.
+
+### Yard Lifecycle & Snapshot Boundary
 - **Security:** Provider tables for configuration snapshots must now be
   host-local and outside the shared state directory. Lexical and resolved
   paths into the yard fail closed, preventing a yard participant from changing
