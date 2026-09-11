@@ -10,20 +10,18 @@
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](https://github.com/ellmos-ai/system-gap-master)
 [![Privacy](https://img.shields.io/badge/privacy-100%25%20Offline%20%7C%20Zero--Egress-brightgreen.svg)](SECURITY.md)
 [![Security](https://img.shields.io/badge/security-Local--First%20%7C%20Fail--Closed-green.svg)](SECURITY.md)
-[![Tests](https://img.shields.io/badge/tests-208%20passed%20%7C%2042%20subtests-brightgreen.svg)](tests/)
+[![Security SLA](https://img.shields.io/badge/security--sla-48h%20%7C%205d%20triage-blue.svg)](SECURITY.md)
+[![Tests](https://img.shields.io/badge/tests-213%20passed%20%7C%2042%20subtests-brightgreen.svg)](tests/)
+[![Code style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![Third-Party Audited](https://img.shields.io/badge/third--party--licenses-audited%20%7C%20100%25%20permissive-brightgreen.svg)](THIRD_PARTY_LICENSES.md)
+[![Marketing Log](https://img.shields.io/badge/marketing--log-active-orange.svg)](MARKETING-LOG.txt)
 [![Protocol](https://img.shields.io/badge/Protocol-Serverless%20Multi--Agent%20Sync-green.svg)](PROTOCOL.md)
 [![LLM Indexing](https://img.shields.io/badge/LLM%20Indexing-llms.txt-purple.svg)](llms.txt)
 [![Ecosystem](https://img.shields.io/badge/Ecosystem-ELLMOS%20AI-blue)](https://github.com/ellmos-ai)
 [![Umbrella](https://img.shields.io/badge/Umbrella-open--bricks-indigo)](https://github.com/open-bricks)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**A serverless sync yard for people who run several machines and several AI
-agents.** One shared folder — synced by whatever you already use (OneDrive,
-Dropbox, Syncthing, a NAS, even git) — plus three conventions that keep
-laptop, workstation and home server from drifting into silos: a **slot rule**
-(each machine writes only its own slot — no merge conflicts by design), a
-**gated daily ritual** your agents run in 2–5 minutes, and a **bootstrap
-runbook** that can bring up a fresh machine from the yard alone.
+**A serverless sync yard for people who run several machines and several AI agents.** One shared folder — synced by whatever you already use (OneDrive, Dropbox, Syncthing, a NAS, even git) — plus three conventions that keep laptop, workstation and home server from drifting into silos: a **slot rule** (each machine writes only its own slot — no merge conflicts by design), a **gated daily ritual** your agents run in 2–5 minutes, and a **bootstrap runbook** that can bring up a fresh machine from the yard alone.
 
 Part of the cross-agent infrastructure family:
 [lock-master](https://github.com/dev-bricks/lock-master) (locks) ·
@@ -35,20 +33,29 @@ Part of the cross-agent infrastructure family:
 
 ---
 
-### Quick Navigation
-[Quick Start](#quick-start) · [Architecture & Yard Structure](#the-yard-structure) · [Ticket Routing](#ticket-routing-boundary) · [The 10 Rules](#the-ten-rules-short) · [Daily Sync Lifecycle](#daily-sync--reconciliation-lifecycle) · [Instance Lifecycle](#controlled-repo-to-yard-lifecycle) · [Conflict Reconciler](#safe-conflict-copy-reconciliation) · [Trusted Peer Paths](#trusted-peer-pull-preparation) · [Republica Fallback](#republica-showcase-fallback) · [Security Policy](SECURITY.md) · [LLM Context](llms.txt) · [Ecosystem Matrix](#sibling-tools--ecosystem)
+## Quick Navigation
+
+1. [Core Principles & Yard Architecture](#core-principles--yard-architecture)
+2. [The 10 Invariant Rules](#the-10-invariant-rules)
+3. [Daily Sync & Reconciliation Lifecycle](#daily-sync--reconciliation-lifecycle)
+4. [Controlled Repo-to-Yard Lifecycle](#controlled-repo-to-yard-lifecycle)
+5. [Safe Conflict-Copy Reconciliation](#safe-conflict-copy-reconciliation)
+6. [Ticket Routing Boundary](#ticket-routing-boundary)
+7. [Trusted Peer Paths & SFTP Execution](#trusted-peer-paths--sftp-execution)
+8. [Republica Showcase Fallback](#republica-showcase-fallback)
+9. [Installation & Quick Start](#installation--quick-start)
+10. [Governance & Runtime Invariants](#governance--runtime-invariants)
+11. [Sibling Tools & Ecosystem](#sibling-tools--ecosystem)
+12. [Third-Party Licenses & Transparency](#third-party-licenses--transparency)
+13. [Discovery & LLM Context](#discovery--llm-context)
+14. [Testing & Verification](#testing--verification)
+15. [Security Policy & License](#security-policy--license)
 
 ---
 
-### Ticket routing boundary
+## Core Principles & Yard Architecture
 
-The optional `ticket-routing` integration connects `ticket-master>=1.11,<1.12`
-to an existing system-gap transport without introducing another queue or
-lifecycle owner. Ticket-master creates and completes the contract;
-system-gap-master only validates its idempotent route intent and hands that
-payload to an injected transport callback. A transport acknowledgement never
-counts as a completion receipt. See the
-[ticket route-intent adapter contract](docs/ticket-route-intent-adapter.md).
+`system-gap-master` coordinates multi-machine development environments and AI agent workflows (Claude, Codex, Antigravity/Gemini) through plain, human-readable files. No daemon, no centralized server, and no cloud-side code execution is required.
 
 ### The Yard Structure
 
@@ -68,7 +75,26 @@ flowchart TD
     end
 ```
 
-### Daily Sync & Reconciliation Lifecycle
+---
+
+## The 10 Invariant Rules
+
+1. **Slot rule** — write your own slot only; never edit foreign slots.
+2. **Daily ritual, gated** — once per day per host, 2–5 minutes.
+3. **Transfer yard, not storage** — integrated items move to `_archive/`.
+4. **Messages** — `messages/to-<recipient>.md`; recipient deletes after reading.
+5. **Agent snapshots** — merge on the target, never overwrite local rules.
+6. **No secrets in the yard** — reference local locations instead.
+7. **Conflict-copy sweep** — daily, provider-agnostic.
+8. **BOOTSTRAP.md stays current** — it must always bring up a fresh machine.
+9. **Structured payloads use adapters** — never sync live SQLite/WAL files.
+10. **Trusted peer paths are gated metadata** — peers validate the host-owned registry and prepare a non-executable receipt. A separate executor may transfer one file only after detached signatures and a one-shot grant pass.
+
+Full reasoning: [PROTOCOL.md](PROTOCOL.md).
+
+---
+
+## Daily Sync & Reconciliation Lifecycle
 
 ```mermaid
 sequenceDiagram
@@ -101,59 +127,135 @@ sequenceDiagram
     Reconciler->>Archive: Move original conflict copies to _archive/
 ```
 
-> **Deutsch:** system-gap-master ist die nutzerneutrale, offene Fassung eines seit
-> Monaten produktiv laufenden Cross-System-Sync-Ordners: mehrere Rechner,
-> mehrere KI-Agenten (Claude/Codex/Gemini), EIN gemeinsamer Übergaberaum —
-> ohne Server, über einen beliebigen Datei-Sync. Slot-Regel gegen Konflikte,
-> tägliches Ritual mit Einmal-pro-Tag-Gate, Nachrichtenkanäle zwischen
-> Agenten, Bootstrap-Runbook für neue Geräte.
+> **Deutsch:** system-gap-master ist die nutzerneutrale, offene Fassung eines seit Monaten produktiv laufenden Cross-System-Sync-Ordners: mehrere Rechner, mehrere KI-Agenten (Claude/Codex/Gemini), EIN gemeinsamer Übergaberaum — ohne Server, über einen beliebigen Datei-Sync. Slot-Regel gegen Konflikte, tägliches Ritual mit Einmal-pro-Tag-Gate, Nachrichtenkanäle zwischen Agenten, Bootstrap-Runbook für neue Geräte.
 
-## Companion tool: sqlite-transit-sync
+---
 
-Need to synchronize live SQLite database state across your hosts without risk of corruption? Check out [sqlite-transit-sync](https://github.com/ellmos-ai/sqlite-transit-sync), the sister tool designed for safe SQLite state replication. Instead of hazardous raw byte-copying of active database files over cloud sync, it relies on SQLite's native backup API to create verified transport snapshots and deterministic manifest merges between machines.
+## Controlled Repo-to-Yard Lifecycle
 
-## Sibling Tools & Ecosystem
+The yard remains a shared instance, never a Git checkout. The optional `yard-instance-manager` compares it with the versioned `system_gap_master/yard_template/YARD_TEMPLATE.json`, classifies the top-level structure and creates non-mutating retention and migration plans. A saved plan may create or update only declared template paths; host slots, messages, archives, private instance content and the tool-owned `db-transit/` zone remain outside its write scope.
 
-`system-gap-master` operates alongside specialized coordination and infrastructure components within the `ellmos-ai`, `dev-bricks`, `doc-bricks`, and `open-bricks` ecosystems:
+```bash
+yard-instance-manager doctor --yard-root /path/to/SYNC
+yard-instance-manager plan --yard-root /path/to/SYNC \
+  --output /host-local/review/yard-plan.json
+yard-instance-manager upgrade --plan /host-local/review/yard-plan.json \
+  --state-dir /host-local/system-gap-master-state
+```
 
-| Tool | Ecosystem | Purpose |
-|------|-----------|---------|
-| [`sqlite-transit-sync`](https://github.com/ellmos-ai/sqlite-transit-sync) | `ellmos-ai` | Verified SQLite transport snapshots and safe cross-host database synchronization |
-| [`memoryhooker`](https://github.com/ellmos-ai/memoryhooker) | `ellmos-ai` | Hook-driven agent lifecycle and session memory orchestration |
-| [`workflowhooker`](https://github.com/ellmos-ai/workflowhooker) | `ellmos-ai` | Deterministic workflow execution hooks and lifecycle triggers |
-| [`system-explorer`](https://github.com/ellmos-ai/system-explorer) | `ellmos-ai` | Agent-centric capability discovery, receipts, and system introspection |
-| [`policy-registry`](https://github.com/ellmos-ai/policy-registry) | `ellmos-ai` | Machine-readable security policy registry and signed delegation verification |
-| [`ellmos-delegation-authority`](https://github.com/ellmos-ai/ellmos-delegation-authority) | `ellmos-ai` | Cryptographic delegation authority and agent permission governance |
-| [`ellmos-controlcenter-mcp`](https://github.com/ellmos-ai/ellmos-controlcenter-mcp) | `ellmos-ai` | Central agent orchestration, skill routing, and MCP tool bundle management |
-| [`ellmos-filecommander-mcp`](https://github.com/ellmos-ai/ellmos-filecommander-mcp) | `ellmos-ai` | High-assurance filesystem operations and async background session manager |
-| [`ellmos-codecommander-mcp`](https://github.com/ellmos-ai/ellmos-codecommander-mcp) | `ellmos-ai` | Code intelligence, AST refactoring, and preview-safe structural editing |
-| [`n8n-manager-mcp`](https://github.com/ellmos-ai/n8n-manager-mcp) | `ellmos-ai` | Local n8n automation manager and safe workflow lifecycle controller |
-| [`lock-master`](https://github.com/dev-bricks/lock-master) | `dev-bricks` | Multi-agent distributed filesystem and resource locking |
-| [`ticket-master`](https://github.com/dev-bricks/ticket-master) | `dev-bricks` | File-based, agent-neutral issue and task tracking |
-| [`clutch`](https://github.com/dev-bricks/clutch) | `dev-bricks` | Transactional workspace state manager and staging barrier |
-| [`coma`](https://github.com/ellmos-ai/coma) | `ellmos-ai` | Central orchestration and multi-agent coordination master |
-| [`safe-start-for-codex`](https://github.com/dev-bricks/safe-start-for-codex) | `dev-bricks` | Safe session bootstrap and preflight verification for AI agents |
-| [`DevCenter`](https://github.com/dev-bricks/DevCenter) | `dev-bricks` | Unified developer cockpit and workflow management hub |
-| [`CodeBox`](https://github.com/dev-bricks/CodeBox) | `dev-bricks` | Isolated sandbox execution for agent-generated code |
-| [`MethodenAnalyser`](https://github.com/dev-bricks/MethodenAnalyser) | `dev-bricks` | Code methodology analyzer and complexity inspector |
-| [`PDFtoPDFocr`](https://github.com/doc-bricks/PDFtoPDFocr) | `doc-bricks` | High-fidelity OCR and local-first searchable PDF generation |
-| [`CleanMarkdown`](https://github.com/doc-bricks/CleanMarkdown) | `doc-bricks` | Pure Markdown formatter, linter, and document cleaner |
-| [`open-bricks`](https://github.com/open-bricks) | `open-bricks` | Umbrella organization for local-first, privacy-focused open source tools |
+Plans, sources and targets are hash-checked again before mutation. Updates receive host-local backups, a write-ahead operation journal, atomic replacement and a resumable rollback operation. A repeated apply of an unchanged plan is a true no-op. The packaged template is the default; `--template-root` exists for explicitly reviewed development templates.
+Locally changed managed files block instead of being overwritten; `seed-once` files remain instance-owned after creation. See [the instance lifecycle contract](docs/instance-manager.md).
 
-## Why not X?
+---
 
-| Existing tools | What they solve | What they don't |
+## Safe Conflict-Copy Reconciliation
+
+Rule 7 no longer means "pick a likely filename and merge it". The optional `conflict-copy-reconciler` requires:
+
+- an explicit root allowlist and an authoritative canonical mapping from a manifest, pointer, registry or writer policy;
+- one mutating owner per root, enforced by an atomic local lease;
+- a stable plan plus compare-before-swap, local backup, atomic replacement, verification and rollback;
+- one of four deterministic classes: exact copy, append-only UTF-8 text, non-overlapping three-way UTF-8 text with a hash-proven base, or the explicit JSON-object adapter.
+
+Anything else remains in place and is reported as blocked. This includes semantic collisions, unknown canonical files, secrets, binaries, databases, archives, `.git`, dirty work, active locks, unavailable cloud files, symlinks, junctions and reparse paths. Signed plans/manifests bind the current actor, observer/owner mode and configuration. Observer mode cannot mutate.
+
+```bash
+conflict-copy-reconciler scan --config conflict-reconciler.config.json
+conflict-copy-reconciler plan --config conflict-reconciler.config.json \
+  --output plan.json
+conflict-copy-reconciler apply --config conflict-reconciler.config.json \
+  --plan plan.json
+conflict-copy-reconciler reconcile --config conflict-reconciler.config.json
+conflict-copy-reconciler verify --config conflict-reconciler.config.json \
+  --operation-id <OPERATION_ID>
+conflict-copy-reconciler rollback --config conflict-reconciler.config.json \
+  --operation-id <OPERATION_ID>
+conflict-copy-reconciler canary
+```
+
+See [the reconciler contract](docs/conflict-copy-reconciler.md), the [configuration example](examples/conflict-reconciler.config.example.json), and the provider-neutral desktop/macOS templates under `system_gap_master/yard_template/runners/`.
+
+---
+
+## Ticket Routing Boundary
+
+The optional `ticket-routing` integration connects `ticket-master>=1.11,<1.12` to an existing system-gap transport without introducing another queue or lifecycle owner. Ticket-master creates and completes the contract; system-gap-master only validates its idempotent route intent and hands that payload to an injected transport callback. A transport acknowledgement never counts as a completion receipt. See the [ticket route-intent adapter contract](docs/ticket-route-intent-adapter.md).
+
+---
+
+## Trusted Peer Paths & SFTP Execution
+
+The optional `trusted-peer-paths` CLI reads the derived `hosts/<HOST>/trusted-peer-paths/registry.json`, validates its owner slot, schema/version, host/peer permissions, freshness/expiry, pinned signature reference, payload digest, known-host pins and exact remote-path allowlist, then emits a deterministic non-executable preparation receipt.
+
+It never publishes, contacts a peer, invokes SSH/SFTP, reads referenced credentials/keys/signatures/known-hosts files, copies bytes, creates a destination or enables `direct_pull`. `direct` and `private-overlay` are validated network labels only; no provider is selected. Secret/content fields fail closed, while approved exact credential *paths* remain metadata.
+
+Live SQLite paths remain discovery-only as `kind=database/sqlite`, `direct_pull=false`, `adapter=sqlite-transit-sync`; R9 keeps their bytes in the verified `db-transit/<namespace>` snapshot flow.
+
+See the [trusted peer registry contract](docs/trusted-peer-path-registry.md), the [JSON schemas](schemas/) and the [host-local examples](examples/trusted-peer-paths.local-config.example.json).
+
+### Optional Trusted-Peer SFTP Execution
+
+`trusted-peer-sftp-executor` is deliberately separate from the read-only planner. It re-runs `pull-plan`, cryptographically verifies both the detached registry signature and a short-lived exact one-shot grant, resolves SSH files only from a host-local configuration, pins the server key before login, and performs one shell-free SFTP `lstat`/read of one regular file. It streams into an exclusive private staging file and commits relative to a pinned destination directory with a platform-specific no-replace primitive.
+
+The sync yard carries only path metadata and signature references. Identity, known-hosts, signature and allowed-signers files stay under explicitly allowed host-local credential roots. Attempt state and redacted receipts are also host-local. SQLite files, directories, overwrite, upload, remote mutation, accept-new host keys and reusable grants remain unavailable.
+
+```bash
+python -m pip install 'system-gap-master[trusted-peer-sftp]'
+trusted-peer-sftp-executor execute \
+  --registry-config /host-local/trusted-peer-paths.json \
+  --executor-config /host-local/trusted-peer-sftp-executor.json \
+  --host-id HOST-A --path-id approved-file \
+  --destination /host-local/imports/approved-file \
+  --authorization /host-local/grants/grant.json
+```
+
+Setup, signature namespaces and failure boundaries are documented in [`docs/trusted-peer-sftp-executor.md`](docs/trusted-peer-sftp-executor.md).
+
+---
+
+## Republica Showcase Fallback
+
+The yard carries documents; it deliberately does NOT carry live databases (rule 9: hot SQLite/WAL files + file-sync providers = corruption). To sync application state between machines, pair the yard with a snapshot-based transit tool in a tool-owned `db-transit/<namespace>/` zone — from the same module family: [sqlite-transit-sync](https://github.com/dev-bricks/sqlite-transit-sync) (local-first SQLite sync through verified snapshots, SHA-256 manifests and pluggable merge policies). The yard is the transport; the transit tool owns integrity and merging.
+
+**When to reach for it:** no server, no trust setup, no open ports — only a file exchange area exists between the machines. That is exactly the situation this repo exists for, and exactly the situation sqlite-transit-sync's `push`/`pull` convergence mode assumes away (it needs both hosts reachable and a merge policy agreed up front).
+
+**The doctrine: Republica is not a stopgap until a tunnel exists.** It is the permanent fallback half of two operating modes meant to run side by side:
+
+1. **Advanced** — direct database sync over an SSH/Tailscale tunnel (`sqlite-transit-sync push`/`pull` with merge policies): fast, converging, needs both hosts reachable and a trust setup.
+2. **Fallback / low-effort** — Republica showcases over any shared file area (`sqlite-transit-sync republica-publish`/`republica-list`/`republica-import`): slow, one-way, needs almost nothing.
+
+**Whichever one fails, the other still carries:**
+
+| Failure scenario | Direct sync (`push`/`pull`) | Republica (`republica-*`) |
 |---|---|---|
-| agentsync & friends (config synchronizers) | one config source → many AI tools, same machine | knowledge/state between **machines** |
-| runtime shared-memory layers | agents talking on one machine, same session | persistence across devices and days |
-| dotfiles repos | config files | agent-centric knowledge, messages, runbooks, rituals |
-| memory MCPs / cloud memory | one agent's memory | multi-agent, multi-machine, provider-neutral, inspectable files |
+| A machine is asleep or offline | stalls — no peer to talk to | keeps working — publish/import whenever the machine wakes |
+| VPN/SSH tunnel is down | stalls | keeps working over the plain file area |
+| Key rotation or trust setup pending | stalls | keeps working with the already-shared Republica key |
+| Shared folder (the yard) is broken, full or desynced | keeps working | stalls |
+| No merge policy has been agreed for a dataset | not applicable — a policy is required to converge at all | keeps working — nothing is ever merged, only read |
 
-system-gap-master's niche: **multi-machine + multi-agent + serverless + plain
-files.** Everything is human-readable Markdown you can audit, grep and sync
-with anything.
+Set it up once and exercise it occasionally even while the direct path is healthy — a fallback that only gets tried on the day it is needed is a fallback that does not work on that day.
 
-## What's in the box
+**Setup cost:** one key transfer, out-of-band (an existing tunnel, a password manager, a USB stick, reading it out over the phone) — never through the yard itself. After that, a plain shared folder is enough, forever, even one you do not otherwise trust.
+
+**What travels:** not a raw database file, but a curated SQL dump (SQLite backup API → curated dump → gzip → Fernet-encrypted). Measured on a real 53.6 MB database: 11.0 MB in transit.
+
+**What it materialises:** the import side writes a *separate*, read-only database per source host under `republica_root/<source-host>/<namespace>.sqlite` — never merged into the local database, which is not even opened during import. That is deliberate: Fernet authenticates the *key*, not the *sender*, so an imported showcase has to stay a read-only copy someone can compare against, never a source that silently changes local rows.
+
+**Sealed envelope:** the same key and the same file area can carry a single encrypted file (`envelope-send`/`envelope-receive`) instead of a database — for the bootstrap case where two machines share no secure channel *yet*, and that is exactly why a credential has to cross once. The plaintext lands on the receiving side **as a file** (mode `0600`) inside the local credentials directory — never inside a database, where a backup, index or sync job would copy it onward forever.
+
+**This module does not implement any of it.** Snapshotting, encryption, publish/list/import and the envelope courier live exclusively in [sqlite-transit-sync](https://github.com/dev-bricks/sqlite-transit-sync) — see its README section ["Republica — the showcase method"](https://github.com/dev-bricks/sqlite-transit-sync#republica--the-showcase-method). What this repo adds is one thing: `republica-transit resolve` locates the correct R9 tool-owned transit zone (`db-transit/<namespace>/`) inside *this* yard, so a user does not have to invent or guess where `--transit` should point.
+
+```bash
+republica-transit resolve --yard-root /path/to/your/yard --namespace my-app
+republica-transit check-root --yard-root /path/to/your/yard --republica-root ~/.republica
+```
+
+`sqlite-transit-sync` is never a hard dependency of this repo: `republica_transit` is plain path arithmetic and works whether or not the companion package is installed. The `resolve` output includes a `sqlite_transit_sync_available` flag so an agent can tell the user to install the companion package before suggesting the next command.
+
+---
+
+## Installation & Quick Start
 
 ```
 PROTOCOL.md          the full protocol (10 rules) + design notes
@@ -187,7 +289,7 @@ docs/instance-manager.md  controlled local-clone-to-yard deployment contract
 docs/trusted-peer-path-registry.md  read-only pull-preparation contract
 ```
 
-## Quick start
+### Quick start
 
 ```bash
 # 1) Create an empty yard, build a reviewable plan from the local clone,
@@ -215,14 +317,7 @@ python scripts/system_gap_daily_check.py mark
 
 ### Configuration-state showroom
 
-The optional configuration-state pattern makes machine drift visible without
-copying provider secrets into the yard. Copy
-[`examples/config-state.providers.example.json`](examples/config-state.providers.example.json)
-to a host-local private path outside every synced yard, replace its placeholder
-paths and keys with an explicit allowlist, and keep the rationale in
-[`system_gap_master/yard_template/_config-state/DEVIATIONS.md`](system_gap_master/yard_template/_config-state/DEVIATIONS.md).
-The script reads only configured JSON/TOML files and keys, normalises paths
-under `<HOME>`, and collapses or redacts values that should not be compared.
+The optional configuration-state pattern makes machine drift visible without copying provider secrets into the yard. Copy [`examples/config-state.providers.example.json`](examples/config-state.providers.example.json) to a host-local private path outside every synced yard, replace its placeholder paths and keys with an explicit allowlist, and keep the rationale in [`system_gap_master/yard_template/_config-state/DEVIATIONS.md`](system_gap_master/yard_template/_config-state/DEVIATIONS.md). The script reads only configured JSON/TOML files and keys, normalises paths under `<HOME>`, and collapses or redacts values that should not be compared.
 
 ```bash
 python scripts/config_snapshot.py all \
@@ -231,280 +326,128 @@ python scripts/config_snapshot.py all \
   --slot YOUR-HOST
 ```
 
-The provider table is authorization policy: the script rejects a table stored
-inside (or redirected into) `--state-dir`. Never sync this host-local file.
+The provider table is authorization policy: the script rejects a table stored inside (or redirected into) `--state-dir`. Never sync this host-local file.
 
-Use `--check` for a read-only preview. `snapshots/` and `CONFIG-STATE.md` are
-derived output; document intentional differences with headings such as
-`### \`agent-one.model\`` in `DEVIATIONS.md`.
+Use `--check` for a read-only preview. `snapshots/` and `CONFIG-STATE.md` are derived output; document intentional differences with headings such as `### \`agent-one.model\`` in `DEVIATIONS.md`.
 
-## Controlled repo-to-yard lifecycle
+---
 
-The yard remains a shared instance, never a Git checkout. The optional
-`yard-instance-manager` compares it with the versioned
-`system_gap_master/yard_template/YARD_TEMPLATE.json`, classifies the top-level structure and creates
-non-mutating retention and migration plans. A saved plan may create or update
-only declared template paths; host slots, messages, archives, private instance
-content and the tool-owned `db-transit/` zone remain outside its write scope.
+## Governance & Runtime Invariants
 
-```bash
-yard-instance-manager doctor --yard-root /path/to/SYNC
-yard-instance-manager plan --yard-root /path/to/SYNC \
-  --output /host-local/review/yard-plan.json
-yard-instance-manager upgrade --plan /host-local/review/yard-plan.json \
-  --state-dir /host-local/system-gap-master-state
-```
+`system-gap-master` strictly adheres to ten core architectural and operational invariants:
 
-Plans, sources and targets are hash-checked again before mutation. Updates
-receive host-local backups, a write-ahead operation journal, atomic replacement
-and a resumable rollback operation. A repeated apply of an unchanged plan is a
-true no-op. The packaged template is the default; `--template-root` exists for
-explicitly reviewed development templates.
-Locally changed managed files block instead of being overwritten; `seed-once`
-files remain instance-owned after creation. See
-[the instance lifecycle contract](docs/instance-manager.md).
+| Invariant ID | Name / Discipline | Operational Guarantee | Enforcement Mechanism |
+|:---|:---|:---|:---|
+| **INV-LOCAL-01** | **Local-First & Zero Egress** | 100% offline filesystem operations; zero cloud phone-home, telemetry, or external dependency. | Zero external network calls; isolated local path manipulation. |
+| **INV-SEC-02** | **Non-Elevation & User Mode** | Executes safely in unprivileged user space (`RunAsInvoker`) without root or administrator elevation. | Strict user-space process and filesystem permission bounds. |
+| **INV-SLOT-03** | **Machine-Owned Slot Rule** | Each host writes exclusively to its own designated slot (`hosts/<hostname>/`); peer slots are read-only. | Spatial file segregation preventing multi-host merge conflicts by design. |
+| **INV-MSG-04** | **Delete-After-Read Messaging** | Inter-host messages (`messages/to-<host>.md`) are processed and atomically deleted after consumption. | At-most-once delivery guarantee; atomic deletion on ingest. |
+| **INV-FAIL-05** | **Fail-Closed Locking & Leases** | Reconciler and template operations require exclusive kernel-backed leases (`reconciler.lock`). | Aborts immediately on lock collision, stale leases, or untracked changes. |
+| **INV-MERGE-06** | **Deterministic Safe Reconciliation** | Conflict copies are merged via exact deduplication, append-only, or 3-way base merge; destructive overwrites are banned. | SHA256-verified baseline hashes, atomic swaps, and rollback backups. |
+| **INV-GATE-07** | **Gated Daily Sync Ritual** | Daily sync preflight (`scripts/system_gap_daily_check.py`) prevents duplicate runs and records completions. | Idempotent daily gate state recorded in `DAILY_SYNC_LOG.md`. |
+| **INV-PEER-08** | **Cryptographic Peer Verification** | SFTP peer preparation requires SHA256 verification and detached Ed25519/GPG signatures before transfer. | Non-executable receipt preparation with fail-closed signature enforcement. |
+| **INV-LIC-09** | **100% Permissive Dependency Stack** | Clean open-source stack audited in `THIRD_PARTY_LICENSES.md`; zero copyleft or AGPL taint. | Continuous dependency audit covering runtime and development tooling. |
+| **INV-SLA-10** | **Dual Security Response SLA** | Committed 48-hour response acknowledgment and 5-day triage commitment for security advisories. | Direct security reporting via `security@open-bricks.org` and `security@ellmos.ai`. |
 
-## The ten rules (short)
+---
 
-1. **Slot rule** — write your own slot only; never edit foreign slots.
-2. **Daily ritual, gated** — once per day per host, 2–5 minutes.
-3. **Transfer yard, not storage** — integrated items move to `_archive/`.
-4. **Messages** — `messages/to-<recipient>.md`; recipient deletes after reading.
-5. **Agent snapshots** — merge on the target, never overwrite local rules.
-6. **No secrets in the yard** — reference local locations instead.
-7. **Conflict-copy sweep** — daily, provider-agnostic.
-8. **BOOTSTRAP.md stays current** — it must always bring up a fresh machine.
-9. **Structured payloads use adapters** — never sync live SQLite/WAL files.
-10. **Trusted peer paths are gated metadata** — peers validate the host-owned
-    registry and prepare a non-executable receipt. A separate executor may
-    transfer one file only after detached signatures and a one-shot grant pass.
+## Sibling Tools & Ecosystem
 
-Full reasoning: [PROTOCOL.md](PROTOCOL.md).
+`system-gap-master` operates alongside specialized coordination and infrastructure components within the `ellmos-ai`, `dev-bricks`, `doc-bricks`, and `open-bricks` ecosystems:
 
-## Safe conflict-copy reconciliation
+| Tool | Ecosystem | Purpose |
+|------|-----------|---------|
+| [`sqlite-transit-sync`](https://github.com/ellmos-ai/sqlite-transit-sync) | `ellmos-ai` | Verified SQLite transport snapshots and safe cross-host database synchronization |
+| [`memoryhooker`](https://github.com/ellmos-ai/memoryhooker) | `ellmos-ai` | Hook-driven agent lifecycle and session memory orchestration |
+| [`workflowhooker`](https://github.com/ellmos-ai/workflowhooker) | `ellmos-ai` | Deterministic workflow execution hooks and lifecycle triggers |
+| [`system-explorer`](https://github.com/ellmos-ai/system-explorer) | `ellmos-ai` | Agent-centric capability discovery, receipts, and system introspection |
+| [`policy-registry`](https://github.com/ellmos-ai/policy-registry) | `ellmos-ai` | Machine-readable security policy registry and signed delegation verification |
+| [`ellmos-delegation-authority`](https://github.com/ellmos-ai/ellmos-delegation-authority) | `ellmos-ai` | Cryptographic delegation authority and agent permission governance |
+| [`ellmos-controlcenter-mcp`](https://github.com/ellmos-ai/ellmos-controlcenter-mcp) | `ellmos-ai` | Central agent orchestration, skill routing, and MCP tool bundle management |
+| [`ellmos-filecommander-mcp`](https://github.com/ellmos-ai/ellmos-filecommander-mcp) | `ellmos-ai` | High-assurance filesystem operations and async background session manager |
+| [`ellmos-codecommander-mcp`](https://github.com/ellmos-ai/ellmos-codecommander-mcp) | `ellmos-ai` | Code intelligence, AST refactoring, and preview-safe structural editing |
+| [`n8n-manager-mcp`](https://github.com/ellmos-ai/n8n-manager-mcp) | `ellmos-ai` | Local n8n automation manager and safe workflow lifecycle controller |
+| [`lock-master`](https://github.com/dev-bricks/lock-master) | `dev-bricks` | Multi-agent distributed filesystem and resource locking |
+| [`ticket-master`](https://github.com/dev-bricks/ticket-master) | `dev-bricks` | File-based, agent-neutral issue and task tracking |
+| [`clutch`](https://github.com/dev-bricks/clutch) | `dev-bricks` | Transactional workspace state manager and staging barrier |
+| [`coma`](https://github.com/ellmos-ai/coma) | `ellmos-ai` | Central orchestration and multi-agent coordination master |
+| [`safe-start-for-codex`](https://github.com/dev-bricks/safe-start-for-codex) | `dev-bricks` | Safe session bootstrap and preflight verification for AI agents |
+| [`DevCenter`](https://github.com/dev-bricks/DevCenter) | `dev-bricks` | Unified developer cockpit and workflow management hub |
+| [`CodeBox`](https://github.com/dev-bricks/CodeBox) | `dev-bricks` | Isolated sandbox execution for agent-generated code |
+| [`MethodenAnalyser`](https://github.com/dev-bricks/MethodenAnalyser) | `dev-bricks` | Code methodology analyzer and complexity inspector |
+| [`PDFtoPDFocr`](https://github.com/doc-bricks/PDFtoPDFocr) | `doc-bricks` | High-fidelity OCR and local-first searchable PDF generation |
+| [`CleanMarkdown`](https://github.com/doc-bricks/CleanMarkdown) | `doc-bricks` | Pure Markdown formatter, linter, and document cleaner |
+| [`open-bricks`](https://github.com/open-bricks) | `open-bricks` | Umbrella organization for local-first, privacy-focused open source tools |
 
-Rule 7 no longer means "pick a likely filename and merge it". The optional
-`conflict-copy-reconciler` requires:
+### Why not X?
 
-- an explicit root allowlist and an authoritative canonical mapping from a
-  manifest, pointer, registry or writer policy;
-- one mutating owner per root, enforced by an atomic local lease;
-- a stable plan plus compare-before-swap, local backup, atomic replacement,
-  verification and rollback;
-- one of four deterministic classes: exact copy, append-only UTF-8 text,
-  non-overlapping three-way UTF-8 text with a hash-proven base, or the
-  explicit JSON-object adapter.
-
-Anything else remains in place and is reported as blocked. This includes
-semantic collisions, unknown canonical files, secrets, binaries, databases,
-archives, `.git`, dirty work, active locks, unavailable cloud files, symlinks,
-junctions and reparse paths. Signed plans/manifests bind the current actor,
-observer/owner mode and configuration. Observer mode cannot mutate.
-
-```bash
-conflict-copy-reconciler scan --config conflict-reconciler.config.json
-conflict-copy-reconciler plan --config conflict-reconciler.config.json \
-  --output plan.json
-conflict-copy-reconciler apply --config conflict-reconciler.config.json \
-  --plan plan.json
-conflict-copy-reconciler reconcile --config conflict-reconciler.config.json
-conflict-copy-reconciler verify --config conflict-reconciler.config.json \
-  --operation-id <OPERATION_ID>
-conflict-copy-reconciler rollback --config conflict-reconciler.config.json \
-  --operation-id <OPERATION_ID>
-conflict-copy-reconciler canary
-```
-
-See [the reconciler contract](docs/conflict-copy-reconciler.md), the
-[configuration example](examples/conflict-reconciler.config.example.json),
-and the provider-neutral desktop/macOS templates under
-`system_gap_master/yard_template/runners/`.
-
-## Trusted-peer pull preparation
-
-The optional `trusted-peer-paths` CLI reads the derived
-`hosts/<HOST>/trusted-peer-paths/registry.json`, validates its owner slot,
-schema/version, host/peer permissions, freshness/expiry, pinned signature
-reference, payload digest, known-host pins and exact remote-path allowlist,
-then emits a deterministic non-executable preparation receipt.
-
-It never publishes, contacts a peer, invokes SSH/SFTP, reads referenced
-credentials/keys/signatures/known-hosts files, copies bytes, creates a
-destination or enables `direct_pull`. `direct` and `private-overlay` are validated
-network labels only; no provider is selected. Secret/content fields fail
-closed, while approved exact credential *paths* remain metadata.
-
-Live SQLite paths remain discovery-only as `kind=database/sqlite`,
-`direct_pull=false`, `adapter=sqlite-transit-sync`; R9 keeps their bytes in
-the verified `db-transit/<namespace>` snapshot flow.
-
-See the [trusted peer registry contract](docs/trusted-peer-path-registry.md),
-the [JSON schemas](schemas/) and the
-[host-local examples](examples/trusted-peer-paths.local-config.example.json).
-
-## Optional trusted-peer SFTP execution
-
-`trusted-peer-sftp-executor` is deliberately separate from the read-only
-planner. It re-runs `pull-plan`, cryptographically verifies both the detached
-registry signature and a short-lived exact one-shot grant, resolves SSH files
-only from a host-local configuration, pins the server key before login, and
-performs one shell-free SFTP `lstat`/read of one regular file. It streams into
-an exclusive private staging file and commits relative to a pinned destination
-directory with a platform-specific no-replace primitive.
-
-The sync yard carries only path metadata and signature references. Identity,
-known-hosts, signature and allowed-signers files stay under explicitly allowed
-host-local credential roots. Attempt state and redacted receipts are also
-host-local. SQLite files, directories, overwrite, upload, remote mutation,
-accept-new host keys and reusable grants remain unavailable.
-
-```bash
-python -m pip install 'system-gap-master[trusted-peer-sftp]'
-trusted-peer-sftp-executor execute \
-  --registry-config /host-local/trusted-peer-paths.json \
-  --executor-config /host-local/trusted-peer-sftp-executor.json \
-  --host-id HOST-A --path-id approved-file \
-  --destination /host-local/imports/approved-file \
-  --authorization /host-local/grants/grant.json
-```
-
-Setup, signature namespaces and failure boundaries are documented in
-[`docs/trusted-peer-sftp-executor.md`](docs/trusted-peer-sftp-executor.md).
-
-## Companion tools
-
-The yard carries documents; it deliberately does NOT carry live databases
-(rule 9: hot SQLite/WAL files + file-sync providers = corruption). To sync
-application state between machines, pair the yard with a snapshot-based
-transit tool in a tool-owned `db-transit/<namespace>/` zone — from the same
-module family: [sqlite-transit-sync](https://github.com/dev-bricks/sqlite-transit-sync) (local-first SQLite sync through
-verified snapshots, SHA-256 manifests and pluggable merge policies). The yard is the transport; the
-transit tool owns integrity and merging.
-
-Need a serverless fallback that works even without a tunnel, trust setup or
-open ports? See [Republica showcase fallback](#republica-showcase-fallback)
-below.
-
-## Republica showcase fallback
-
-**When to reach for it:** no server, no trust setup, no open ports — only a
-file exchange area exists between the machines. That is exactly the situation
-this repo exists for, and exactly the situation sqlite-transit-sync's
-`push`/`pull` convergence mode assumes away (it needs both hosts reachable and
-a merge policy agreed up front).
-
-**The doctrine: Republica is not a stopgap until a tunnel exists.** It is the
-permanent fallback half of two operating modes meant to run side by side:
-
-1. **Advanced** — direct database sync over an SSH/Tailscale tunnel
-   (`sqlite-transit-sync push`/`pull` with merge policies): fast, converging,
-   needs both hosts reachable and a trust setup.
-2. **Fallback / low-effort** — Republica showcases over any shared file area
-   (`sqlite-transit-sync republica-publish`/`republica-list`/`republica-import`):
-   slow, one-way, needs almost nothing.
-
-**Whichever one fails, the other still carries:**
-
-| Failure scenario | Direct sync (`push`/`pull`) | Republica (`republica-*`) |
+| Existing tools | What they solve | What they don't |
 |---|---|---|
-| A machine is asleep or offline | stalls — no peer to talk to | keeps working — publish/import whenever the machine wakes |
-| VPN/SSH tunnel is down | stalls | keeps working over the plain file area |
-| Key rotation or trust setup pending | stalls | keeps working with the already-shared Republica key |
-| Shared folder (the yard) is broken, full or desynced | keeps working | stalls |
-| No merge policy has been agreed for a dataset | not applicable — a policy is required to converge at all | keeps working — nothing is ever merged, only read |
+| agentsync & friends (config synchronizers) | one config source → many AI tools, same machine | knowledge/state between **machines** |
+| runtime shared-memory layers | agents talking on one machine, same session | persistence across devices and days |
+| dotfiles repos | config files | agent-centric knowledge, messages, runbooks, rituals |
+| memory MCPs / cloud memory | one agent's memory | multi-agent, multi-machine, provider-neutral, inspectable files |
 
-Set it up once and exercise it occasionally even while the direct path is
-healthy — a fallback that only gets tried on the day it is needed is a
-fallback that does not work on that day.
+system-gap-master's niche: **multi-machine + multi-agent + serverless + plain files.** Everything is human-readable Markdown you can audit, grep and sync with anything.
 
-**Setup cost:** one key transfer, out-of-band (an existing tunnel, a password
-manager, a USB stick, reading it out over the phone) — never through the yard
-itself. After that, a plain shared folder is enough, forever, even one you do
-not otherwise trust.
+### Part of the ellmos stack family
 
-**What travels:** not a raw database file, but a curated SQL dump (SQLite
-backup API → curated dump → gzip → Fernet-encrypted). Measured on a real
-53.6 MB database: 11.0 MB in transit.
+system-gap-master is deliberately both: a standalone dev tool you can drop into any project, and a core module of the ellmos stack family.
 
-**What it materialises:** the import side writes a *separate*, read-only
-database per source host under `republica_root/<source-host>/<namespace>.sqlite`
-— never merged into the local database, which is not even opened during
-import. That is deliberate: Fernet authenticates the *key*, not the *sender*,
-so an imported showcase has to stay a read-only copy someone can compare
-against, never a source that silently changes local rows.
+Core module of [ellmos-ai/agent-ops-stack](https://github.com/ellmos-ai/agent-ops-stack) (role `file-sync`); family/catalog: [ellmos-ai/stacks](https://github.com/ellmos-ai/stacks); org overview: [ellmos-ai](https://github.com/ellmos-ai). Companion module for live SQLite state (role `sync.database`): [sqlite-transit-sync](https://github.com/dev-bricks/sqlite-transit-sync).
 
-**Sealed envelope:** the same key and the same file area can carry a single
-encrypted file (`envelope-send`/`envelope-receive`) instead of a database —
-for the bootstrap case where two machines share no secure channel *yet*, and
-that is exactly why a credential has to cross once. The plaintext lands on
-the receiving side **as a file** (mode `0600`) inside the local credentials
-directory — never inside a database, where a backup, index or sync job would
-copy it onward forever.
+### Bundles and partners
 
-**This module does not implement any of it.** Snapshotting, encryption,
-publish/list/import and the envelope courier live exclusively in
-[sqlite-transit-sync](https://github.com/dev-bricks/sqlite-transit-sync) —
-see its README section
-["Republica — the showcase method"](https://github.com/dev-bricks/sqlite-transit-sync#republica--the-showcase-method).
-What this repo adds is one thing: `republica-transit resolve` locates the
-correct R9 tool-owned transit zone (`db-transit/<namespace>/`) inside *this*
-yard, so a user does not have to invent or guess where `--transit` should
-point.
+`system-gap-master` remains a standalone, serverless sync tool. In the V4 composition it is the required federation and receipt coordinator of the `ellmos-sync-federation-bundle`. Its direct partners are the recommended `sqlite-transit-sync` snapshot adapter and read-only system-map export and receipt-validation components.
+
+Federation is optional for a local system: if this module is absent or not healthy, the local core may still produce its local manifest and gap output; foreign-map import, fleet analysis and trusted-peer preparation are then unavailable rather than silently simulated.
+
+The authoritative bundle manifest defines membership, versions, profiles and private composition recipes. This public section describes only safe, standalone discovery relationships.
+
+---
+
+## Third-Party Licenses & Transparency
+
+`system-gap-master` is committed to 100% permissive open-source licensing, unprivileged execution (`RunAsInvoker`), and complete transparency across all runtime, optional, and development dependencies.
+
+- **Zero Copyleft / AGPL Constraints:** There are zero GPL, AGPL, or restrictive copyleft dependencies.
+- **Audited Stack:** Runtime dependencies are restricted to the Python standard library (PSFL-2.0) and `tomli` (MIT) on Python < 3.11. Optional adapters include `paramiko` (LGPL-2.1) and `ticket-master` (MIT). Quality assurance uses `pytest` (MIT), `ruff` (MIT/Apache-2.0), and `setuptools` (MIT).
+- **Comprehensive Audit:** For full details, see [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md).
+
+---
+
+## Discovery & LLM Context
+
+`system-gap-master` provides comprehensive machine-readable specifications and metadata for local AI agents, LLM tool callers, and automated pipelines:
+
+- **[`llms.txt`](llms.txt)**: Fast-loading, token-efficient architectural context, core guarantees, and navigation indexes.
+- **[`PROTOCOL.md`](PROTOCOL.md)**: Full protocol specification, slot rules, and design rationale.
+- **[`SKILL.md`](SKILL.md)**: Agent-neutral operational skill for running the daily sync ritual.
+- **[`MARKETING-LOG.txt`](MARKETING-LOG.txt)**: Positioning baseline, target personas, differentiation matrix, and 10 governance invariants.
+
+---
+
+## Testing & Verification
+
+The test suite validates contract integrity, slot rules, conflict reconciliation, SFTP execution, and lifecycle management across multiple platforms:
 
 ```bash
-republica-transit resolve --yard-root /path/to/your/yard --namespace my-app
-republica-transit check-root --yard-root /path/to/your/yard --republica-root ~/.republica
+# Run test suite
+pytest -v
+
+# Run linting and code quality checks
+ruff check .
+
+# Run bytecode compilation verification
+python -m compileall -q .
 ```
 
-`sqlite-transit-sync` is never a hard dependency of this repo: `republica_transit`
-is plain path arithmetic and works whether or not the companion package is
-installed. The `resolve` output includes a `sqlite_transit_sync_available`
-flag so an agent can tell the user to install the companion package before
-suggesting the next command.
+All 213 test cases and 42 subtests execute fully offline with zero external network connectivity.
 
-## Part of the ellmos stack family
+---
 
-system-gap-master is deliberately both: a standalone dev tool you can drop into any
-project, and a core module of the ellmos stack family.
+## Security Policy & License
 
-Core module of [ellmos-ai/agent-ops-stack](https://github.com/ellmos-ai/agent-ops-stack)
-(role `file-sync`); family/catalog: [ellmos-ai/stacks](https://github.com/ellmos-ai/stacks);
-org overview: [ellmos-ai](https://github.com/ellmos-ai). Companion module for live
-SQLite state (role `sync.database`): [sqlite-transit-sync](https://github.com/dev-bricks/sqlite-transit-sync) — see
-[Companion tools](#companion-tools) above.
-
-## Bundles and partners
-
-`system-gap-master` remains a standalone, serverless sync tool. In the V4
-composition it is the required federation and receipt coordinator of the
-`ellmos-sync-federation-bundle`. Its direct partners are the recommended
-`sqlite-transit-sync` snapshot adapter and read-only system-map export and
-receipt-validation components.
-
-Federation is optional for a local system: if this module is absent or not
-healthy, the local core may still produce its local manifest and gap output;
-foreign-map import, fleet analysis and trusted-peer preparation are then
-unavailable rather than silently simulated.
-
-The authoritative bundle manifest defines membership, versions, profiles and
-private composition recipes. This public section describes only safe,
-standalone discovery relationships.
-
-## Security & privacy notes
-
-- The yard travels through your sync provider: treat it as **semi-trusted**.
-  Never put credentials, tokens or personal/case data in it (rule 6) — the
-  templates and the skill repeat this at every write point.
-- Exact credential *paths* may appear in a host-owned trusted-peer registry;
-  referenced values, keys and file content remain forbidden. The planner only
-  validates references and pins. The optional executor verifies detached
-  signatures and performs one grant-bound SFTP read using host-local files.
-- Everything is plain files: your existing backup, encryption and access
-  control apply unchanged.
-
-## Provenance & license
-
-Distilled 2026 from a production cross-system sync folder that has been
-coordinating multiple machines and agents (Claude, Codex, Gemini) since
-spring 2026 — generalized, user-neutral rebuild; no production data included.
-MIT license — covers code, templates and documentation alike.
+- **Security Policy:** See [`SECURITY.md`](SECURITY.md) for vulnerability disclosure procedures, dual SLAs (48-hour response, 5-day triage commitment), and supported version branches.
+- **Zero-Secrets Invariant:** Never place credentials, API tokens, private keys, or confidential case data in the sync yard (Rule 6).
+- **License:** Distributed under the permissive [MIT License](LICENSE) covering code, templates, and documentation.

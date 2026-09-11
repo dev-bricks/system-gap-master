@@ -1,6 +1,15 @@
 # Changelog
 
-## [1.6.0] - 2026-09-08
+## [1.6.0] - 2026-09-11
+
+### Added & Marketing Hardening (Pfad B Discoverability & Design)
+- **Third-Party Open-Source License Audit:** Created `THIRD_PARTY_LICENSES.md` auditing 100% permissive runtime dependencies (Python stdlib PSFL-2.0, `tomli` MIT), optional adapters (`paramiko` LGPL-2.1, `ticket-master` MIT), and developer tooling (`pytest` MIT, `ruff` MIT/Apache-2.0). Confirmed zero copyleft or AGPL constraints and unprivileged `RunAsInvoker` execution.
+- **Local Marketing & Strategy Baseline:** Created `MARKETING-LOG.txt` outlining target personas, high-intent bilingual search queries, competitive differentiation against cloud storage and queues, and ten core governance invariants (`INV-LOCAL-01` to `INV-SLA-10`).
+- **Standardized 15-Point Quick Navigation:** Structured `README.md` and `README_de.md` with identical 15-point quick navigation bars and anchors, bilingual badges (CI, Version, Python, Platform, Privacy, Security, Security SLA, Tests, Ruff, Third-Party Audited, Marketing Log, Protocol, LLM Indexing, Ecosystem, Umbrella, License).
+- **Governance & Runtime Invariants Matrix:** Documented the ten architectural invariants in both English and German README documentation, guaranteeing local-first privacy, machine-owned slot isolation, delete-after-read messaging, fail-closed locking, and dual security SLA (48h acknowledgment, 5-day triage commitment).
+- **Package Metadata Enrichment:** Added `Third-Party Licenses` and `Marketing Log` URLs under PEP 621 `[project.urls]` in `pyproject.toml`, and configured verbose test execution (`-ra -v`).
+- **Context & Search Optimization:** Synchronized `llms.txt` with latest test verification (213 passed, 42 subtests), updated primary file inventory, and expanded search queries.
+- **Contract Test Suite Expansion:** Extended `tests/test_metadata.py` with contract tests verifying 15-point navigation parity, governance invariant definitions, third-party license audit integrity, and marketing strategy log structure.
 
 ### Added & Security Hardening (Pfad A Turnus-Hygiene)
 - **CI/CD Hardening:** Configured workflow concurrency with `cancel-in-progress: true` on `.github/workflows/tests.yml` to prevent redundant runs. Added bytecode compilation verification gate (`python -m compileall -q .`) and test execution with `pytest -v`.

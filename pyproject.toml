@@ -61,12 +61,14 @@ Repository = "https://github.com/ellmos-ai/system-gap-master"
 Changelog = "https://github.com/ellmos-ai/system-gap-master/blob/main/CHANGELOG.md"
 "Bug Tracker" = "https://github.com/ellmos-ai/system-gap-master/issues"
 Security = "https://github.com/ellmos-ai/system-gap-master/blob/main/SECURITY.md"
+"Third-Party Licenses" = "https://github.com/ellmos-ai/system-gap-master/blob/main/THIRD_PARTY_LICENSES.md"
+"Marketing Log" = "https://github.com/ellmos-ai/system-gap-master/blob/main/MARKETING-LOG.txt"
 "Parent Organization" = "https://github.com/ellmos-ai"
 "Umbrella Ecosystem" = "https://github.com/open-bricks"
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "-ra -q"
+addopts = "-ra -v"
 testpaths = ["tests"]
 pythonpath = ["."]
 

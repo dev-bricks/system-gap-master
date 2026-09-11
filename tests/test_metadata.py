@@ -1,6 +1,7 @@
 """Metadata and manifest parity tests for system-gap-master."""
 
 import json
+import re
 import unittest
 from pathlib import Path
 
@@ -88,17 +89,20 @@ class MetadataParityTests(unittest.TestCase):
             self.assertIn("3.13", text)
             self.assertIn("Zero--Egress", text)
             self.assertIn("Fail--Closed", text)
-            self.assertIn("208%20passed", text)
+            self.assertIn("213%20passed", text)
             self.assertIn("open--bricks", text)
             self.assertIn("MIT", text)
+            self.assertIn("ruff", text)
+            self.assertIn("THIRD_PARTY_LICENSES.md", text)
+            self.assertIn("MARKETING-LOG.txt", text)
 
     def test_llms_txt_presence(self):
         llms_path = self.root / "llms.txt"
         self.assertTrue(llms_path.exists(), "llms.txt must exist")
         content = llms_path.read_text(encoding="utf-8")
         self.assertIn("system-gap-master", content)
-        self.assertIn("Last-checked: 2026-09-09", content)
-        self.assertIn("208 tests passed", content)
+        self.assertIn("Last-checked: 2026-09-11", content)
+        self.assertIn("213 tests passed", content)
         self.assertIn("https://github.com/ellmos-ai/system-gap-master", content)
 
     def test_ci_workflow_integrity(self):
@@ -195,6 +199,96 @@ class MetadataParityTests(unittest.TestCase):
         self.assertIn("sequenceDiagram", en_text)
         self.assertIn("flowchart TD", de_text)
         self.assertIn("sequenceDiagram", de_text)
+
+    def test_readme_15_point_navigation_parity(self):
+        en_readme = self.root / "README.md"
+        de_readme = self.root / "README_de.md"
+        en_text = en_readme.read_text(encoding="utf-8")
+        de_text = de_readme.read_text(encoding="utf-8")
+
+        en_nav_items = re.findall(r"^(\d+)\.\s+\[([^\]]+)\]\(#([^\)]+)\)", en_text, re.MULTILINE)
+        de_nav_items = re.findall(r"^(\d+)\.\s+\[([^\]]+)\]\(#([^\)]+)\)", de_text, re.MULTILINE)
+
+        self.assertEqual(len(en_nav_items), 15, f"Expected 15 items in README.md navigation, got {len(en_nav_items)}")
+        self.assertEqual(len(de_nav_items), 15, f"Expected 15 items in README_de.md navigation, got {len(de_nav_items)}")
+
+        for i, (num, title, anchor) in enumerate(en_nav_items, start=1):
+            self.assertEqual(int(num), i)
+            first_keyword = title.split("&")[0].strip()
+            self.assertTrue(
+                re.search(rf"^#+\s+.*{re.escape(first_keyword)}", en_text, re.MULTILINE | re.IGNORECASE),
+                f"Heading for '{title}' not found in README.md",
+            )
+
+        for i, (num, title, anchor) in enumerate(de_nav_items, start=1):
+            self.assertEqual(int(num), i)
+            first_keyword = title.split("&")[0].strip()
+            self.assertTrue(
+                re.search(rf"^#+\s+.*{re.escape(first_keyword)}", de_text, re.MULTILINE | re.IGNORECASE),
+                f"Heading for '{title}' not found in README_de.md",
+            )
+
+    def test_governance_invariants_parity(self):
+        en_readme = (self.root / "README.md").read_text(encoding="utf-8")
+        de_readme = (self.root / "README_de.md").read_text(encoding="utf-8")
+        marketing_log = (self.root / "MARKETING-LOG.txt").read_text(encoding="utf-8")
+        llms_txt = (self.root / "llms.txt").read_text(encoding="utf-8")
+
+        invariants = [
+            "INV-LOCAL-01",
+            "INV-SEC-02",
+            "INV-SLOT-03",
+            "INV-MSG-04",
+            "INV-FAIL-05",
+            "INV-MERGE-06",
+            "INV-GATE-07",
+            "INV-PEER-08",
+            "INV-LIC-09",
+            "INV-SLA-10",
+        ]
+        for inv in invariants:
+            self.assertIn(inv, en_readme, f"{inv} missing in README.md")
+            self.assertIn(inv, de_readme, f"{inv} missing in README_de.md")
+            self.assertIn(inv, marketing_log, f"{inv} missing in MARKETING-LOG.txt")
+        self.assertIn("INV-LOCAL-01", llms_txt)
+        self.assertIn("INV-SLA-10", llms_txt)
+
+    def test_third_party_licenses_contract(self):
+        tpl_path = self.root / "THIRD_PARTY_LICENSES.md"
+        self.assertTrue(tpl_path.exists(), "THIRD_PARTY_LICENSES.md must exist")
+        text = tpl_path.read_text(encoding="utf-8")
+
+        self.assertIn("Runtime Dependency Matrix", text)
+        self.assertIn("Optional Execution Adapter Dependencies", text)
+        self.assertIn("Development & Quality Assurance Tooling", text)
+        self.assertIn("100% Permissive", text)
+        self.assertIn("zero AGPL", text)
+        self.assertIn("RunAsInvoker", text)
+        self.assertIn("tomli", text)
+        self.assertIn("pytest", text)
+        self.assertIn("ruff", text)
+
+    def test_marketing_log_contract(self):
+        ml_path = self.root / "MARKETING-LOG.txt"
+        self.assertTrue(ml_path.exists(), "MARKETING-LOG.txt must exist")
+        text = ml_path.read_text(encoding="utf-8")
+
+        self.assertIn("TARGET PERSONAS", text)
+        self.assertIn("HIGH-INTENT SEARCH QUERIES", text)
+        self.assertIn("COMPETITIVE DIFFERENTIATION MATRIX", text)
+        self.assertIn("GOVERNANCE & RUNTIME INVARIANTS", text)
+        self.assertIn("Multi-Device Developers", text)
+
+    def test_pyproject_urls_contract(self):
+        pyproject_path = self.root / "pyproject.toml"
+        self.assertTrue(pyproject_path.exists(), "pyproject.toml must exist")
+        data = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))
+        urls = data.get("project", {}).get("urls", {})
+
+        self.assertIn("Third-Party Licenses", urls)
+        self.assertIn("THIRD_PARTY_LICENSES.md", urls["Third-Party Licenses"])
+        self.assertIn("Marketing Log", urls)
+        self.assertIn("MARKETING-LOG.txt", urls["Marketing Log"])
 
 
 if __name__ == "__main__":

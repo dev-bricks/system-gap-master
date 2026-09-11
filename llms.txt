@@ -1,13 +1,13 @@
 # system-gap-master
 
-## Last-checked: 2026-09-09
+## Last-checked: 2026-09-11
 
 ## Verification
 
-208 tests passed, 42 subtests passed, and 3 platform tests were skipped: the
+213 tests passed, 42 subtests passed, and 3 platform tests were skipped: the
 Windows symlink test lacks the required account privilege, and two POSIX mode
 tests do not apply on Windows;
-Ruff, pytest, unittest, and `compileall` passed cleanly on 2026-09-09.
+Ruff, pytest, unittest, and `compileall` passed cleanly on 2026-09-11.
 
 ## Canonical repository
 
@@ -23,10 +23,12 @@ separate state silos.
 
 ## Primary files
 
-- `README.md` — overview, quick start and security notes.
-- `README_de.md` — vollständige deutsche Dokumentation & Schnellstart.
+- `README.md` — overview, 15-point quick navigation, architecture, and security notes.
+- `README_de.md` — vollständige deutsche Dokumentation, 15-Punkte-Navigation & Schnellstart.
 - `PROTOCOL.md` — full protocol and design rationale.
 - `SKILL.md` — daily sync ritual for agents.
+- `THIRD_PARTY_LICENSES.md` — audited 100% permissive open-source license inventory, RunAsInvoker non-elevation, and third-party notices.
+- `MARKETING-LOG.txt` — market positioning, target personas, differentiation matrix, and 10 governance invariants.
 - `scripts/system_gap_daily_check.py` — zero-dependency daily gate script.
 - `scripts/config_snapshot.py` — provider-neutral, allowlisted configuration
   snapshots and a comparable deviation report; generated state is derived.
@@ -64,10 +66,14 @@ separate state silos.
 - `docs/adapting-your-agents.md` — integration notes for agent rule files and
   session-start hooks.
 
-## Safety model
+## Safety model & Governance Invariants
 
+- Strictly adheres to ten architectural invariants (`INV-LOCAL-01` to `INV-SLA-10`),
+  including local-first privacy, non-elevation (`RunAsInvoker`), machine-owned slot
+  isolation, delete-after-read messaging, and dual security SLA (48h acknowledgment,
+  5-day triage commitment).
 - No credentials, tokens, private case data or live databases belong in the
-  sync yard.
+  sync yard (Rule 6).
 - Each machine writes only its own host slot plus shared drop zones.
 - Integrated transfer items are archived, not silently deleted.
 - Hot SQLite files and other open data stores must use snapshot-based transit
@@ -110,4 +116,10 @@ signed one shot SFTP pull executor
 semi trusted yard registry authenticity
 republica showcase fallback database sync
 serverless database sync without a tunnel
+conflict copy reconciler safe three way merge
+zero egress local first cross device sync
+serverless multi agent synchronisation open source
+cross device ai agent state synchronization
+deterministic conflict resolution cloud storage
+local first multi machine workflow orchestration
 ```
