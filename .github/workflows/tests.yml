@@ -13,6 +13,7 @@ concurrency:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -44,4 +45,4 @@ jobs:
 
       - name: Run tests with pytest
         run: |
-          pytest -v
+          python -m pytest -ra -v

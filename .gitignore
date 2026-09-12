@@ -1,12 +1,23 @@
 # Internal working notes (never released)
 _intern/
+LOCK
 LOCK*.txt
 LOCK.*
+LOCK.permissions.json
+LOCK.user.*
+LOCK.until.*
+LOCK.condition.*
 *.lock
 *.sync-conflict-*
 *.conflict
 *-CONFLIT-*
 *-conflict-*
+*-WORKSTATION*
+*-ASUS-GEI*
+* (kopie)*
+* (copy)*
+*.sync-temp-*
+*.orig
 trusted-peer-paths.local.json
 trusted-peer-paths.entries.local.json
 
@@ -22,8 +33,11 @@ dist/
 .pytest_cache/
 .ruff_cache/
 .coverage
+.coverage.*
 htmlcov/
 .wheel-smoke/
+.tox/
+.mypy_cache/
 
 # Temporary and backup files
 *.tmp

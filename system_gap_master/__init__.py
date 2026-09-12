@@ -2,10 +2,9 @@
 
 from typing import Any
 
-__version__ = "1.6.0"
+__version__ = "1.6.1"
 
 __all__ = [
-    "__version__",
     "ConflictCopyReconciler",
     "InstanceManagerError",
     "ReconcilerError",
@@ -17,6 +16,7 @@ __all__ = [
     "TrustedPeerPathRegistry",
     "TrustedPeerSftpError",
     "TrustedPeerSftpExecutor",
+    "__version__",
     "create_ticket_handoff",
     "validate_route_intent",
 ]

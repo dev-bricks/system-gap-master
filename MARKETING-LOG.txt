@@ -3,7 +3,7 @@ Date: 2026-09-11
 Operator: Antigravity / Gemini (via GITHUBBOT Pfad B)
 Target Repo: ellmos-ai/system-gap-master
 Canonical Path: C:\_Local_DEV\repos\system-gap-master
-Version: 1.6.0
+Version: 1.6.1
 
 ================================================================================
 1. REPOSITORY AUDIT & DISCOVERABILITY BASELINE
@@ -123,3 +123,13 @@ German (DE):
    - Maintain bidirectional links with sibling tools in ellmos-ai (lock-master, ticket-master, agent-ops-stack) and dev-bricks (sqlite-transit-sync).
 3. Community Showcases:
    - Publish case studies detailing multi-device developer coordination across Windows, macOS, and Linux without cloud-sync conflicts.
+
+================================================================================
+8. PFAD A HYGIENE & TECHNICAL INTEGRITY AUDIT (2026-09-12)
+================================================================================
+- CI/CD Matrix: Added `timeout-minutes: 15` job guardrail to `.github/workflows/tests.yml` across Ubuntu, Windows, and macOS runners. Standardized execution to `python -m pytest -ra -v`.
+- PEP 621 Standard: Enriched `[project.urls]` in `pyproject.toml` with `"LLM Ready"` URL pointing to `llms.txt`.
+- Code Quality & Linting: Expanded `[tool.ruff.lint]` rule sets with `B`, `SIM`, `C4`, and `RUF`. Alphabetically sorted `__all__` in `system_gap_master/__init__.py`.
+- Multi-Host Sync Defense: Expanded `.gitignore` with multi-host conflict patterns (`*-WORKSTATION*`, `*-ASUS-GEI*`, `* (kopie)*`, `* (copy)*`, `*.sync-temp-*`, `*.orig`), multi-agent locks (`LOCK`, `LOCK.permissions.json`), and test/coverage caches.
+- Yard Template Integrity: Bumped template version to 1.6.1 in `system_gap_master/yard_template/YARD_TEMPLATE.json` and verified with wheel smoke test in `tests/test_packaging.py`.
+- Contract Verification: Extended `tests/test_metadata.py` with CI timeout and LLM-Ready URL tests (18 tests in metadata suite, 215 tests total, 100% pass rate).

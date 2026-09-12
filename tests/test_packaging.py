@@ -61,7 +61,7 @@ class InstalledWheelTemplateTests(unittest.TestCase):
                         "root = _default_template_root(); "
                         "template = load_template(root); "
                         "assert root.is_dir(); "
-                        "assert template.version == '1.6.0'; "
+                        "assert template.version == '1.6.1'; "
                         "print(root)"
                     ),
                 ],

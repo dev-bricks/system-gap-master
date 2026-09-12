@@ -1,6 +1,6 @@
 {
   "schema": "system-gap.yard-template.v1",
-  "template_version": "1.6.0",
+  "template_version": "1.6.1",
   "directories": [
     {"path": "_archive", "ownership": "instance", "required": true},
     {"path": "_config-state", "ownership": "instance", "required": true},

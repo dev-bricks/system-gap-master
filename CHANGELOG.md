@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.6.1] - 2026-09-12
+
+### Changed & Repository Hygiene (Pfad A Turnus-Hygiene)
+- **CI/CD Guardrail Hardening:** Added `timeout-minutes: 15` job guardrail to `.github/workflows/tests.yml` preventing hanging runner allocations across all matrix jobs (Ubuntu, Windows, macOS, Python 3.10-3.13). Standardized test execution command to `python -m pytest -ra -v`.
+- **PEP 621 Metadata & URL Parity:** Enriched `[project.urls]` in `pyproject.toml` with `"LLM Ready"` pointing to `llms.txt`. Expanded `[tool.ruff.lint]` rule sets with `B` (flake8-bugbear), `SIM` (flake8-simplify), `C4` (flake8-comprehensions), and `RUF` (Ruff-specific rules) with appropriate ignore overrides.
+- **Gitignore Multi-Host Defense:** Hardened `.gitignore` against multi-host sync conflict copies (`*-WORKSTATION*`, `*-ASUS-GEI*`, `* (kopie)*`, `* (copy)*`, `*.sync-temp-*`, `*.orig`), multi-agent lock files (`LOCK`, `LOCK.permissions.json`, `LOCK.user.*`, `LOCK.until.*`, `LOCK.condition.*`), and coverage/type caches (`.coverage.*`, `.tox/`, `.mypy_cache/`).
+- **Code & Test Suite Hygiene:** Alphabetically sorted public exports `__all__` in `system_gap_master/__init__.py` per `RUF022`. Cleaned up unused loop variable bindings (`_anchor`) in `tests/test_metadata.py` per `B007`.
+- **Contract Test Suite Expansion:** Extended `tests/test_metadata.py` with contract tests verifying CI timeout-minutes guardrails and `LLM Ready` PEP 621 URL contract. Total tests expanded to 215 passed (100% green offline).
+- **Template & Documentation Synchronization:** Synchronized `system_gap_master/yard_template/YARD_TEMPLATE.json` to template version `1.6.1`, updated `tests/test_packaging.py`, refreshed `llms.txt` verification timestamp to 2026-09-12, and updated bilingual badges in `README.md` and `README_de.md`.
+
 ## [1.6.0] - 2026-09-11
 
 ### Added & Marketing Hardening (Pfad B Discoverability & Design)

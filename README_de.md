@@ -5,13 +5,13 @@
 [English](README.md) | [Deutsch](README_de.md)
 
 [![CI](https://github.com/ellmos-ai/system-gap-master/actions/workflows/tests.yml/badge.svg)](https://github.com/ellmos-ai/system-gap-master/actions/workflows/tests.yml)
-[![Version](https://img.shields.io/badge/Version-1.6.0-blue.svg)](pyproject.toml)
+[![Version](https://img.shields.io/badge/Version-1.6.1-blue.svg)](pyproject.toml)
 [![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/)
 [![Platform](https://img.shields.io/badge/Plattform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](https://github.com/ellmos-ai/system-gap-master)
 [![Privacy](https://img.shields.io/badge/Privatsph%C3%A4re-100%25%20Offline%20%7C%20Zero--Egress-brightgreen.svg)](SECURITY.md)
 [![Security](https://img.shields.io/badge/Sicherheit-Local--First%20%7C%20Fail--Closed-green.svg)](SECURITY.md)
 [![Security SLA](https://img.shields.io/badge/Sicherheits--SLA-48h%20%7C%205d%20Triage-blue.svg)](SECURITY.md)
-[![Tests](https://img.shields.io/badge/Tests-213%20passed%20%7C%2042%20subtests-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/Tests-215%20passed%20%7C%2042%20subtests-brightgreen.svg)](tests/)
 [![Code style: Ruff](https://img.shields.io/badge/Code--Stil-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Third-Party Audited](https://img.shields.io/badge/Drittanbieter--Lizenzen-auditiert%20%7C%20100%25%20permissiv-brightgreen.svg)](THIRD_PARTY_LICENSES.md)
 [![Marketing Log](https://img.shields.io/badge/Marketing--Log-aktiv-orange.svg)](MARKETING-LOG.txt)
@@ -405,7 +405,7 @@ ruff check .
 python -m compileall -q .
 ```
 
-Alle 213 Tests und 42 Subtests laufen vollständig offline ohne jegliche Netzwerkverbindung.
+Alle 215 Tests und 42 Subtests laufen vollständig offline ohne jegliche Netzwerkverbindung.
 
 ---
 

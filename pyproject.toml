@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "system-gap-master"
-version = "1.6.0"
+version = "1.6.1"
 description = "Serverless cross-machine sync protocol and transfer yard for multi-machine AI agent operations"
 readme = "README.md"
 authors = [
@@ -65,6 +65,7 @@ Security = "https://github.com/ellmos-ai/system-gap-master/blob/main/SECURITY.md
 "Marketing Log" = "https://github.com/ellmos-ai/system-gap-master/blob/main/MARKETING-LOG.txt"
 "Parent Organization" = "https://github.com/ellmos-ai"
 "Umbrella Ecosystem" = "https://github.com/open-bricks"
+"LLM Ready" = "https://github.com/ellmos-ai/system-gap-master/blob/main/llms.txt"
 
 [tool.pytest.ini_options]
 minversion = "7.0"
@@ -83,5 +84,5 @@ line-length = 120
 target-version = "py310"
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I"]
-ignore = ["E501"]
+select = ["E", "F", "W", "I", "B", "C4", "RUF"]
+ignore = ["E501", "B007", "B904", "RUF100"]

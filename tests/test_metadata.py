@@ -84,12 +84,12 @@ class MetadataParityTests(unittest.TestCase):
 
         for text in (en_text, de_text):
             self.assertIn("actions/workflows/tests.yml/badge.svg", text)
-            self.assertIn("1.6.0", text)
+            self.assertIn("1.6.1", text)
             self.assertIn("3.10", text)
             self.assertIn("3.13", text)
             self.assertIn("Zero--Egress", text)
             self.assertIn("Fail--Closed", text)
-            self.assertIn("213%20passed", text)
+            self.assertIn("215%20passed", text)
             self.assertIn("open--bricks", text)
             self.assertIn("MIT", text)
             self.assertIn("ruff", text)
@@ -101,8 +101,8 @@ class MetadataParityTests(unittest.TestCase):
         self.assertTrue(llms_path.exists(), "llms.txt must exist")
         content = llms_path.read_text(encoding="utf-8")
         self.assertIn("system-gap-master", content)
-        self.assertIn("Last-checked: 2026-09-11", content)
-        self.assertIn("213 tests passed", content)
+        self.assertIn("Last-checked: 2026-09-12", content)
+        self.assertIn("215 tests passed", content)
         self.assertIn("https://github.com/ellmos-ai/system-gap-master", content)
 
     def test_ci_workflow_integrity(self):
@@ -115,9 +115,10 @@ class MetadataParityTests(unittest.TestCase):
         self.assertIn('"3.13"', ci_content)
         self.assertIn("concurrency:", ci_content)
         self.assertIn("cancel-in-progress: true", ci_content)
+        self.assertIn("timeout-minutes: 15", ci_content)
         self.assertIn("ruff check .", ci_content)
         self.assertIn("compileall", ci_content)
-        self.assertIn("pytest -v", ci_content)
+        self.assertIn("pytest -ra -v", ci_content)
 
     def test_gitignore_hygiene(self):
         gitignore_path = self.root / ".gitignore"
@@ -125,8 +126,12 @@ class MetadataParityTests(unittest.TestCase):
         gi_content = gitignore_path.read_text(encoding="utf-8")
         self.assertIn("*.sync-conflict-*", gi_content)
         self.assertIn("*-CONFLIT-*", gi_content)
+        self.assertIn("*-WORKSTATION*", gi_content)
+        self.assertIn("*-ASUS-GEI*", gi_content)
+        self.assertIn("* (kopie)*", gi_content)
         self.assertIn("LOCK.*", gi_content)
         self.assertIn("*.lock", gi_content)
+        self.assertIn("LOCK.permissions.json", gi_content)
         self.assertIn(".pytest_cache/", gi_content)
         self.assertIn(".ruff_cache/", gi_content)
 
@@ -212,7 +217,7 @@ class MetadataParityTests(unittest.TestCase):
         self.assertEqual(len(en_nav_items), 15, f"Expected 15 items in README.md navigation, got {len(en_nav_items)}")
         self.assertEqual(len(de_nav_items), 15, f"Expected 15 items in README_de.md navigation, got {len(de_nav_items)}")
 
-        for i, (num, title, anchor) in enumerate(en_nav_items, start=1):
+        for i, (num, title, _anchor) in enumerate(en_nav_items, start=1):
             self.assertEqual(int(num), i)
             first_keyword = title.split("&")[0].strip()
             self.assertTrue(
@@ -220,7 +225,7 @@ class MetadataParityTests(unittest.TestCase):
                 f"Heading for '{title}' not found in README.md",
             )
 
-        for i, (num, title, anchor) in enumerate(de_nav_items, start=1):
+        for i, (num, title, _anchor) in enumerate(de_nav_items, start=1):
             self.assertEqual(int(num), i)
             first_keyword = title.split("&")[0].strip()
             self.assertTrue(
@@ -289,6 +294,22 @@ class MetadataParityTests(unittest.TestCase):
         self.assertIn("THIRD_PARTY_LICENSES.md", urls["Third-Party Licenses"])
         self.assertIn("Marketing Log", urls)
         self.assertIn("MARKETING-LOG.txt", urls["Marketing Log"])
+        self.assertIn("LLM Ready", urls)
+        self.assertIn("llms.txt", urls["LLM Ready"])
+
+    def test_ci_timeout_guardrail(self):
+        ci_path = self.root / ".github" / "workflows" / "tests.yml"
+        self.assertTrue(ci_path.exists(), ".github/workflows/tests.yml must exist")
+        ci_content = ci_path.read_text(encoding="utf-8")
+        self.assertIn("timeout-minutes: 15", ci_content)
+
+    def test_pyproject_llm_ready_contract(self):
+        pyproject_path = self.root / "pyproject.toml"
+        self.assertTrue(pyproject_path.exists(), "pyproject.toml must exist")
+        data = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))
+        urls = data.get("project", {}).get("urls", {})
+        self.assertIn("LLM Ready", urls)
+        self.assertEqual(urls["LLM Ready"], "https://github.com/ellmos-ai/system-gap-master/blob/main/llms.txt")
 
 
 if __name__ == "__main__":
